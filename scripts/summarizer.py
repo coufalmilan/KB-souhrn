@@ -10,38 +10,41 @@ import google.generativeai as genai
 
 MODEL_NAME = "gemini-2.5-flash"
 
-CATEGORIES = [
-    "Hrozby a incidenty",
-    "Zranitelnosti",
-    "Legislativa a regulace",
-    "Zajímavosti",
-]
-
 SYSTEM_PROMPT = textwrap.dedent("""\
-    Jsi expert na kybernetickou bezpečnost a píšeš denní přehled pro české IT profesionály.
+    Jsi expert na kybernetickou bezpečnost a píšeš denní přehled pro české IT profesionály a bezpečnostní analytiky.
     Odpovídáš VÝHRADNĚ v češtině. Nepoužívej žádný jiný jazyk.
+    Zaměřuješ se především na dění v České republice a na zprávy relevantní pro české organizace.
 """)
 
 
 def build_user_prompt(articles: list[dict]) -> str:
     lines = [
         "Níže je seznam článků z oblasti kybernetické bezpečnosti z posledních 24 hodin.",
-        "Vytvoř strukturovaný přehled v češtině rozdělený do těchto kategorií:",
-        "  1. Hrozby a incidenty",
-        "  2. Zranitelnosti",
-        "  3. Legislativa a regulace",
-        "  4. Zajímavosti",
+        "Vytvoř strukturovaný přehled v češtině přesně v tomto pořadí sekcí:",
+        "",
+        "  1. 🇨🇿 NÚKIB — Co publikoval Národní úřad pro kybernetickou a informační bezpečnost",
+        "     Sem patří POUZE články ze zdroje 'NÚKIB'. Pokud NÚKIB nic nepublikoval, napiš to explicitně.",
+        "",
+        "  2. 🇨🇿 Česká republika a region — Kybernetická bezpečnost v ČR a střední Evropě",
+        "     Sem patří: zprávy ze zdroje 'CERT.CZ', incidenty nebo hrozby týkající se českých",
+        "     organizací, institucí nebo infrastruktury, legislativa ČR/EU relevantní pro ČR",
+        "     (NIS2, DORA, zákon o kybernetické bezpečnosti), a regionální dění.",
+        "",
+        "  3. 🌍 Svět — Významné světové události v kybernetické bezpečnosti",
+        "     Sem patří globální hrozby, velké incidenty, zranitelnosti v rozšířeném SW/HW,",
+        "     zprávy od ENISA, a zahraniční zprávy (Krebs, Hacker News, BleepingComputer, Schneier).",
+        "     Vyber jen nejdůležitější — max 6–8 položek, ne vše.",
         "",
         "Pravidla formátování:",
-        "- Každou kategorii uveď jako nadpis: ## Název kategorie",
-        "- Pod každou kategorii vypiš relevantní položky jako seznam",
+        "- Každou sekci uveď jako nadpis: ## 🇨🇿 NÚKIB / ## 🇨🇿 Česká republika a region / ## 🌍 Svět",
+        "- Pod každou sekci vypiš položky jako seznam",
         "- Každá položka musí mít formát:",
         "  **Název článku** — Jednověté shrnutí v češtině. [Zdroj: NázevZdroje] URL: https://...",
-        "- Pokud pro kategorii nejsou žádné relevantní články, napiš: *Žádné novinky v této kategorii.*",
-        "- Na konec přidej krátký odstavec ## Celkový přehled (2–3 věty, co je dnes nejdůležitější).",
+        "- Pokud pro sekci nejsou žádné články, napiš: *Žádné novinky v této sekci.*",
+        "- Na úplný konec přidej sekci: ## 📋 Shrnutí dne (2–3 věty o tom nejdůležitějším pro české IT profesionály)",
         "- Celý výstup musí být v češtině.",
         "",
-        "Články:",
+        "Články (zdroj je uveden v hranatých závorkách):",
     ]
     for i, a in enumerate(articles, 1):
         lines.append(
