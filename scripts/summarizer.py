@@ -8,7 +8,7 @@ import json
 import textwrap
 import google.generativeai as genai
 
-MODEL_NAME = "gemini-2.0-flash"
+MODEL_NAME = "gemini-1.5-flash"
 
 CATEGORIES = [
     "Hrozby a incidenty",
