@@ -67,10 +67,8 @@ jobs:
           BREVO_SMTP_PASSWORD: ${{ secrets.BREVO_SMTP_PASSWORD }}
           EMAIL_FROM:          ${{ secrets.EMAIL_FROM }}
           EMAIL_TO:            ${{ secrets.EMAIL_TO }}
-        # Předáme HTML verzi přímo z docs/archive/YYYY-MM-DD.html
-        run: |
-          TODAY=$(date +%Y-%m-%d)
-          python scripts/mailer.py "docs/archive/${TODAY}.html"
+        # Předáme markdown souhrn — mailer ho sám převede na HTML
+        run: python scripts/mailer.py /tmp/summary.md
 
       # -----------------------------------------------------------------------
       # 8. Commit a push vygenerovaných souborů

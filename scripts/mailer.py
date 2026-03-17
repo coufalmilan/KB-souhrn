@@ -102,12 +102,59 @@ def send(summary_html: str, today: date | None = None) -> None:
         sys.exit(1)
 
 
+def markdown_to_html(md: str) -> str:
+    """Převede markdown na HTML (stejná logika jako v build_web.py)."""
+    import re as _re
+    html_lines = []
+    lines = md.split("\n")
+    in_ul = False
+
+    def close_ul():
+        nonlocal in_ul
+        if in_ul:
+            html_lines.append("</ul>")
+            in_ul = False
+
+    def inline(text: str) -> str:
+        text = _re.sub(r'(https?://[^\s<>"]+)',
+                       r'<a href="\1" target="_blank" rel="noopener">\1</a>', text)
+        text = _re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
+        text = _re.sub(r"\*(.+?)\*", r"<em>\1</em>", text)
+        return text
+
+    for line in lines:
+        s = line.rstrip()
+        if s.startswith("## "):
+            close_ul()
+            html_lines.append(f'<h2 class="digest-h2">{inline(s[3:])}</h2>')
+        elif s.startswith("### "):
+            close_ul()
+            html_lines.append(f'<h3 class="digest-h3">{inline(s[4:])}</h3>')
+        elif s.startswith("- ") or s.startswith("* "):
+            if not in_ul:
+                html_lines.append("<ul>")
+                in_ul = True
+            html_lines.append(f"  <li>{inline(s[2:])}</li>")
+        elif s == "":
+            close_ul()
+            html_lines.append("")
+        else:
+            close_ul()
+            html_lines.append(f"<p>{inline(s)}</p>")
+    close_ul()
+    return "\n".join(html_lines)
+
+
 if __name__ == "__main__":
-    # Čte HTML souhrn ze stdin nebo ze souboru
+    # Přijímá markdown (.md) nebo HTML soubor / stdin
     if len(sys.argv) > 1:
         with open(sys.argv[1], encoding="utf-8") as f:
-            html = f.read()
+            content = f.read()
     else:
-        html = sys.stdin.read()
+        content = sys.stdin.read()
 
-    send(html)
+    # Pokud jde o markdown, převeď na HTML
+    if sys.argv[1].endswith(".md") if len(sys.argv) > 1 else False:
+        content = markdown_to_html(content)
+
+    send(content)
