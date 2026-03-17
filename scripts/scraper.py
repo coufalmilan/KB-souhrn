@@ -156,18 +156,18 @@ def scrape_all() -> list[dict]:
     since = cutoff_time()
     all_articles = []
 
-    print(f"[INFO] Stahuji novinky od {since.strftime('%Y-%m-%d %H:%M UTC')} …")
+    print(f"[INFO] Stahuji novinky od {since.strftime('%Y-%m-%d %H:%M UTC')} …", file=sys.stderr)
 
     # RSS feedy
     for name, url in RSS_FEEDS:
         items = fetch_rss(name, url, since)
-        print(f"[INFO] {name}: {len(items)} článků")
+        print(f"[INFO] {name}: {len(items)} článků", file=sys.stderr)
         all_articles.extend(items)
         time.sleep(0.5)  # slušnost vůči serverům
 
     # NÚKIB scraping
     nukib_items = fetch_nukib(since)
-    print(f"[INFO] NÚKIB: {len(nukib_items)} článků")
+    print(f"[INFO] NÚKIB: {len(nukib_items)} článků", file=sys.stderr)
     all_articles.extend(nukib_items)
 
     # Deduplikace
@@ -176,7 +176,7 @@ def scrape_all() -> list[dict]:
     # Seřadit od nejnovějšího
     all_articles.sort(key=lambda x: x.get("published", ""), reverse=True)
 
-    print(f"[INFO] Celkem po deduplikaci: {len(all_articles)} článků")
+    print(f"[INFO] Celkem po deduplikaci: {len(all_articles)} článků", file=sys.stderr)
     return all_articles
 
 
