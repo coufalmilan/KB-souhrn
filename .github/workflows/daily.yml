@@ -1,0 +1,87 @@
+name: Kyber Digest — denní generování
+
+on:
+  schedule:
+    # 6:45 UTC = 7:45 SEČ (zimní čas) / 8:45 SELČ (letní čas)
+    - cron: '45 6 * * *'
+  workflow_dispatch:          # umožňuje ruční spuštění z GitHub UI
+
+permissions:
+  contents: write             # potřebujeme pro git push
+
+jobs:
+  generate-digest:
+    name: Vygeneruj a publikuj digest
+    runs-on: ubuntu-latest
+
+    steps:
+      # -----------------------------------------------------------------------
+      # 1. Checkout repozitáře
+      # -----------------------------------------------------------------------
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0       # celá historie pro git log
+
+      # -----------------------------------------------------------------------
+      # 2. Nastavení Pythonu
+      # -----------------------------------------------------------------------
+      - name: Nastavení Pythonu 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # -----------------------------------------------------------------------
+      # 3. Instalace závislostí
+      # -----------------------------------------------------------------------
+      - name: Instalace závislostí
+        run: pip install -r requirements.txt
+
+      # -----------------------------------------------------------------------
+      # 4. Scraping — stáhne články za posledních 24 h
+      # -----------------------------------------------------------------------
+      - name: Scraping zdrojů
+        run: python scripts/scraper.py > /tmp/articles.json
+
+      # -----------------------------------------------------------------------
+      # 5. Summarizace — Gemini API
+      # -----------------------------------------------------------------------
+      - name: Summarizace (Gemini)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/summarizer.py /tmp/articles.json > /tmp/summary.md
+
+      # -----------------------------------------------------------------------
+      # 6. Generování HTML webu
+      # -----------------------------------------------------------------------
+      - name: Generování webu (docs/)
+        run: python scripts/build_web.py /tmp/summary.md
+
+      # -----------------------------------------------------------------------
+      # 7. Odeslání emailu
+      # -----------------------------------------------------------------------
+      - name: Odeslání emailu
+        env:
+          BREVO_SMTP_USER:     ${{ secrets.BREVO_SMTP_USER }}
+          BREVO_SMTP_PASSWORD: ${{ secrets.BREVO_SMTP_PASSWORD }}
+          EMAIL_FROM:          ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO:            ${{ secrets.EMAIL_TO }}
+        # Předáme HTML verzi přímo z docs/archive/YYYY-MM-DD.html
+        run: |
+          TODAY=$(date +%Y-%m-%d)
+          python scripts/mailer.py "docs/archive/${TODAY}.html"
+
+      # -----------------------------------------------------------------------
+      # 8. Commit a push vygenerovaných souborů
+      # -----------------------------------------------------------------------
+      - name: Commit a push docs/
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/
+          TODAY=$(date +%Y-%m-%d)
+          # Commituj jen pokud jsou nějaké změny
+          git diff --cached --quiet && echo "Žádné změny k commitování." || \
+            git commit -m "digest: ${TODAY}"
+          git push

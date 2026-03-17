@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kybernetický digest</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #f5f6fa; --surface: #fff; --border: #e2e4ea;
+      --text: #1a1d23; --muted: #6b7280; --accent: #2563eb;
+      --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0f1117; --surface: #1a1d23; --border: #2d3139;
+              --text: #e8eaf0; --muted: #9ca3af; --accent: #60a5fa; }
+    }
+    body { font-family: var(--font); background: var(--bg); color: var(--text);
+           display: flex; align-items: center; justify-content: center;
+           min-height: 100vh; padding: 2rem; }
+    .box { background: var(--surface); border: 1px solid var(--border);
+           border-radius: 10px; padding: 2.5rem 3rem; max-width: 520px;
+           text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    .icon { font-size: 3rem; margin-bottom: 1rem; }
+    h1 { font-size: 1.4rem; margin-bottom: .75rem; }
+    p { color: var(--muted); font-size: .95rem; line-height: 1.6; }
+    .badge { display: inline-block; margin-top: 1.25rem; background: var(--accent);
+             color: #fff; font-size: .8rem; padding: .3rem .9rem;
+             border-radius: 99px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="icon">🛡️</div>
+    <h1>Kybernetický digest</h1>
+    <p>
+      Tato stránka bude automaticky aktualizována GitHub Actions při prvním spuštění workflow.<br><br>
+      Spusť workflow ručně přes <strong>Actions → Kyber Digest → Run workflow</strong>
+      a za pár minut se zde zobrazí dnešní přehled.
+    </p>
+    <div class="badge">Čeká na první spuštění</div>
+  </div>
+</body>
+</html>
