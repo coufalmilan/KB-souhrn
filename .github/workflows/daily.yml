@@ -2,8 +2,8 @@ name: Kyber Digest — denní generování
 
 on:
   schedule:
-    # 6:45 UTC = 7:45 SEČ (zimní čas) / 8:45 SELČ (letní čas)
-    - cron: '45 6 * * *'
+    # 7:00 UTC = 8:00 SEČ (zimní čas) / 9:00 SELČ (letní čas)
+    - cron: '0 7 * * *'
   workflow_dispatch:          # umožňuje ruční spuštění z GitHub UI
 
 permissions:
@@ -39,10 +39,15 @@ jobs:
         run: pip install -r requirements.txt
 
       # -----------------------------------------------------------------------
-      # 4. Scraping — stáhne články za posledních 24 h
+      # 4. Scraping — stáhne články od posledního spuštění (nebo 32 h zpět)
       # -----------------------------------------------------------------------
       - name: Scraping zdrojů
-        run: python scripts/scraper.py > /tmp/articles.json
+        run: |
+          LAST_RUN=""
+          if [ -f docs/last_run.txt ]; then
+            LAST_RUN=$(cat docs/last_run.txt)
+          fi
+          LAST_RUN_TS="$LAST_RUN" python scripts/scraper.py > /tmp/articles.json
 
       # -----------------------------------------------------------------------
       # 5. Summarizace — Gemini API
@@ -77,6 +82,8 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Ulož čas tohoto spuštění pro příští run
+          date -u +%Y-%m-%dT%H:%M:%SZ > docs/last_run.txt
           git add docs/
           TODAY=$(date +%Y-%m-%d)
           # Commituj jen pokud jsou nějaké změny

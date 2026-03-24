@@ -7,11 +7,12 @@ import feedparser
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
+import os
 import time
 import sys
 
-# Kolik hodin zpět hledáme
-HOURS_BACK = 24
+# Fallback: kolik hodin zpět hledáme, pokud neexistuje last_run.txt
+HOURS_BACK_FALLBACK = 32
 
 RSS_FEEDS = [
     ("CERT.CZ",           "https://www.cert.cz/feed/"),
@@ -33,7 +34,23 @@ HEADERS = {
 
 
 def cutoff_time() -> datetime:
-    return datetime.now(timezone.utc) - timedelta(hours=HOURS_BACK)
+    """
+    Vrátí čas od kdy hledat články.
+    Pokud existuje env LAST_RUN_TS (ISO 8601 z docs/last_run.txt), použijeme ho.
+    Jinak jdeme HOURS_BACK_FALLBACK hodin zpět.
+    """
+    last_run_ts = os.environ.get("LAST_RUN_TS", "").strip()
+    if last_run_ts:
+        try:
+            # Parsuj ISO 8601 timestamp (např. 2026-03-24T07:00:00Z)
+            dt = datetime.fromisoformat(last_run_ts.replace("Z", "+00:00"))
+            print(f"[INFO] Cutoff: od posledního runu {dt.strftime('%Y-%m-%d %H:%M UTC')}", file=sys.stderr)
+            return dt
+        except ValueError:
+            print(f"[WARN] Nepodařilo se parsovat LAST_RUN_TS='{last_run_ts}', používám fallback.", file=sys.stderr)
+    fallback = datetime.now(timezone.utc) - timedelta(hours=HOURS_BACK_FALLBACK)
+    print(f"[INFO] Cutoff: fallback {HOURS_BACK_FALLBACK}h zpět ({fallback.strftime('%Y-%m-%d %H:%M UTC')})", file=sys.stderr)
+    return fallback
 
 
 def parse_entry_date(entry) -> datetime | None:
