@@ -80,7 +80,7 @@ def summarize(articles: list[dict]) -> str:
 
     user_prompt = build_user_prompt(articles)
 
-    print(f"[INFO] Volám Gemini ({MODEL_NAME}) pro {len(articles)} AI článků …")
+    print(f"[INFO] Volám Gemini ({MODEL_NAME}) pro {len(articles)} AI článků …", file=sys.stderr)
 
     try:
         response = model.generate_content(
@@ -91,7 +91,7 @@ def summarize(articles: list[dict]) -> str:
             ),
         )
         text = response.text.strip()
-        print("[INFO] Gemini odpověděl, délka:", len(text), "znaků")
+        print("[INFO] Gemini odpověděl, délka:", len(text), "znaků", file=sys.stderr)
         return text
     except Exception as exc:
         print(f"[ERROR] Gemini API: {exc}", file=sys.stderr)
