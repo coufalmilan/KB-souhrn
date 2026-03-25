@@ -1,0 +1,90 @@
+name: AI Digest — denní generování
+
+on:
+  schedule:
+    # 7:15 UTC = 8:15 SEČ (zimní čas) / 9:15 SELČ (letní čas)
+    # 15 minut po kyber digestu, aby nedošlo ke konfliktům
+    - cron: '15 7 * * *'
+  workflow_dispatch:          # umožňuje ruční spuštění z GitHub UI
+
+permissions:
+  contents: write
+
+jobs:
+  generate-ai-digest:
+    name: Vygeneruj a publikuj AI digest
+    runs-on: ubuntu-latest
+
+    steps:
+      # -----------------------------------------------------------------------
+      # 1. Checkout repozitáře
+      # -----------------------------------------------------------------------
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # -----------------------------------------------------------------------
+      # 2. Nastavení Pythonu
+      # -----------------------------------------------------------------------
+      - name: Nastavení Pythonu 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # -----------------------------------------------------------------------
+      # 3. Instalace závislostí
+      # -----------------------------------------------------------------------
+      - name: Instalace závislostí
+        run: pip install -r requirements.txt
+
+      # -----------------------------------------------------------------------
+      # 4. Scraping AI zdrojů
+      # -----------------------------------------------------------------------
+      - name: Scraping AI zdrojů
+        run: |
+          LAST_RUN=""
+          if [ -f docs/ai/last_run.txt ]; then
+            LAST_RUN=$(cat docs/ai/last_run.txt)
+          fi
+          AI_LAST_RUN_TS="$LAST_RUN" python scripts/ai_scraper.py > /tmp/ai_articles.json
+
+      # -----------------------------------------------------------------------
+      # 5. Summarizace — Gemini API
+      # -----------------------------------------------------------------------
+      - name: Summarizace (Gemini)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/ai_summarizer.py /tmp/ai_articles.json > /tmp/ai_summary.md
+
+      # -----------------------------------------------------------------------
+      # 6. Generování HTML webu (docs/ai/)
+      # -----------------------------------------------------------------------
+      - name: Generování webu (docs/ai/)
+        run: python scripts/build_ai_web.py /tmp/ai_summary.md
+
+      # -----------------------------------------------------------------------
+      # 7. Odeslání emailu
+      # -----------------------------------------------------------------------
+      - name: Odeslání emailu
+        env:
+          BREVO_SMTP_USER:     ${{ secrets.BREVO_SMTP_USER }}
+          BREVO_SMTP_PASSWORD: ${{ secrets.BREVO_SMTP_PASSWORD }}
+          EMAIL_FROM:          ${{ secrets.EMAIL_FROM }}
+          EMAIL_TO:            ${{ secrets.EMAIL_TO }}
+        run: python scripts/ai_mailer.py /tmp/ai_summary.md
+
+      # -----------------------------------------------------------------------
+      # 8. Commit a push vygenerovaných souborů
+      # -----------------------------------------------------------------------
+      - name: Commit a push docs/ai/
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          date -u +%Y-%m-%dT%H:%M:%SZ > docs/ai/last_run.txt
+          git add docs/ai/
+          TODAY=$(date +%Y-%m-%d)
+          git diff --cached --quiet && echo "Žádné změny k commitování." || \
+            git commit -m "ai-digest: ${TODAY}"
+          git push
