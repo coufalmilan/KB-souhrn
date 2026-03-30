@@ -5,6 +5,7 @@ Vrátí seznam článků: title, url, source, published, summary
 
 import feedparser
 import requests
+import re
 from bs4 import BeautifulSoup
 from datetime import datetime, timezone, timedelta
 import os
@@ -15,15 +16,17 @@ import sys
 HOURS_BACK_FALLBACK = 32
 
 RSS_FEEDS = [
-    ("CERT.CZ",           "https://www.cert.cz/feed/"),
-    ("Krebs on Security", "https://krebsonsecurity.com/feed/"),
-    ("The Hacker News",   "https://feeds.feedburner.com/TheHackersNews"),
-    ("BleepingComputer",  "https://www.bleepingcomputer.com/feed/"),
-    ("ENISA",             "https://www.enisa.europa.eu/media/news-items/news-wires/RSS"),
+    ("CERT.CZ",              "https://www.cert.cz/feed/"),
+    ("Krebs on Security",    "https://krebsonsecurity.com/feed/"),
+    ("The Hacker News",      "https://feeds.feedburner.com/TheHackersNews"),
+    ("BleepingComputer",     "https://www.bleepingcomputer.com/feed/"),
+    ("ENISA",                "https://www.enisa.europa.eu/media/news-items/news-wires/RSS"),
     ("Schneier on Security", "https://schneier.com/feed/"),
 ]
 
-NUKIB_URL = "https://nukib.gov.cz/cs/infoservis/hrozby/"
+NUKIB_URL              = "https://nukib.gov.cz/cs/infoservis/hrozby/"
+NUKIB_PORTAL_AKTUALNE  = "https://portal.nukib.gov.cz/informacni-servis/aktualne"
+NUKIB_PORTAL_MATERIALY = "https://portal.nukib.gov.cz/informacni-servis/podpurne-materialy"
 
 HEADERS = {
     "User-Agent": (
@@ -42,7 +45,6 @@ def cutoff_time() -> datetime:
     last_run_ts = os.environ.get("LAST_RUN_TS", "").strip()
     if last_run_ts:
         try:
-            # Parsuj ISO 8601 timestamp (např. 2026-03-24T07:00:00Z)
             dt = datetime.fromisoformat(last_run_ts.replace("Z", "+00:00"))
             print(f"[INFO] Cutoff: od posledního runu {dt.strftime('%Y-%m-%d %H:%M UTC')}", file=sys.stderr)
             return dt
@@ -66,7 +68,7 @@ def parse_entry_date(entry) -> datetime | None:
 
 
 def fetch_rss(name: str, url: str, since: datetime) -> list[dict]:
-    """Stáhne RSS feed a vrátí články novější než `since`."""
+    """Stáhne RSS feed a vrátí články novější než since."""
     articles = []
     try:
         feed = feedparser.parse(url, request_headers=HEADERS)
@@ -75,16 +77,14 @@ def fetch_rss(name: str, url: str, since: datetime) -> list[dict]:
             return []
         for entry in feed.entries:
             pub = parse_entry_date(entry)
-            # Pokud datum chybí, zahrneme článek (raději víc než méně)
             if pub and pub < since:
                 continue
-            title   = getattr(entry, "title", "").strip()
-            url_e   = getattr(entry, "link",  "").strip()
+            title   = getattr(entry, "title",   "").strip()
+            url_e   = getattr(entry, "link",    "").strip()
             summary = getattr(entry, "summary", "") or getattr(entry, "description", "")
-            # Odstraň HTML tagy ze summary
             if summary:
                 summary = BeautifulSoup(summary, "lxml").get_text(separator=" ").strip()
-            summary = summary[:500] if summary else ""
+                summary = summary[:500]
             if title and url_e:
                 articles.append({
                     "title":     title,
@@ -99,22 +99,18 @@ def fetch_rss(name: str, url: str, since: datetime) -> list[dict]:
 
 
 def fetch_nukib(since: datetime) -> list[dict]:
-    """Scrapuje NÚKIB stránku hrozeb (nemá RSS)."""
+    """Scrapuje NÚKIB stránku hrozeb (nukib.gov.cz)."""
     articles = []
     try:
         resp = requests.get(NUKIB_URL, headers=HEADERS, timeout=15)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "lxml")
-
-        # NÚKIB používá seznam článků s class "article-item" nebo podobné
-        # Zkusíme několik selektorů, web se občas mění
         items = (
             soup.select("article")
             or soup.select(".news-item")
             or soup.select(".article-list__item")
             or soup.select("li.item")
         )
-
         for item in items:
             a_tag = item.find("a", href=True)
             if not a_tag:
@@ -123,27 +119,20 @@ def fetch_nukib(since: datetime) -> list[dict]:
             href  = a_tag["href"]
             if not href.startswith("http"):
                 href = "https://nukib.gov.cz" + href
-
-            # Datum — hledáme time nebo .date element
             date_tag = item.find("time") or item.find(class_=lambda c: c and "date" in c)
             pub = None
             if date_tag:
                 dt_str = date_tag.get("datetime") or date_tag.get_text(strip=True)
                 for fmt in ("%Y-%m-%d", "%d.%m.%Y", "%Y-%m-%dT%H:%M:%S"):
                     try:
-                        pub = datetime.strptime(dt_str[:10], fmt[:len(dt_str[:10])]).replace(
-                            tzinfo=timezone.utc
-                        )
+                        pub = datetime.strptime(dt_str[:10], fmt[:len(dt_str[:10])]).replace(tzinfo=timezone.utc)
                         break
                     except ValueError:
                         pass
-
             if pub and pub < since:
                 continue
-
             summary_tag = item.find("p") or item.find(class_=lambda c: c and "perex" in (c or ""))
             summary = summary_tag.get_text(strip=True)[:500] if summary_tag else ""
-
             if title and href:
                 articles.append({
                     "title":     title,
@@ -154,6 +143,58 @@ def fetch_nukib(since: datetime) -> list[dict]:
                 })
     except Exception as exc:
         print(f"[ERROR] NÚKIB: {exc}", file=sys.stderr)
+    return articles
+
+
+def fetch_nukib_portal(url: str, source_name: str, since: datetime) -> list[dict]:
+    """Scrapuje portál NÚKIB (aktuálně / podpůrné materiály)."""
+    articles = []
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=15)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "lxml")
+        path_segment = url.split("portal.nukib.gov.cz")[1]
+        links = soup.select('a[href*="' + path_segment + '/"]')
+        seen_hrefs = set()
+        for a_tag in links:
+            href = a_tag.get("href", "").strip()
+            if not href:
+                continue
+            if not href.startswith("http"):
+                href = "https://portal.nukib.gov.cz" + href
+            if href in seen_hrefs:
+                continue
+            seen_hrefs.add(href)
+            raw_text = a_tag.get_text(separator="\n", strip=True)
+            lines_txt = [l.strip() for l in raw_text.split("\n") if l.strip()]
+            pub = None
+            title_parts = []
+            for line in lines_txt:
+                date_match = re.match(r"(\d{1,2})\.,?\s*(\d{1,2})\.,?\s*(\d{4})", line)
+                if date_match and pub is None:
+                    try:
+                        d, m, y = int(date_match.group(1)), int(date_match.group(2)), int(date_match.group(3))
+                        pub = datetime(y, m, d, 8, 0, 0, tzinfo=timezone.utc)
+                    except ValueError:
+                        pass
+                elif re.match(r"TLP:", line) or line in ("Aktuality", "Upozornění", "Materiály", "Analýzy", "Legislativa"):
+                    continue
+                elif pub is not None:
+                    title_parts.append(line)
+            title = " ".join(title_parts).strip()
+            if not title or not href:
+                continue
+            if pub and pub < since:
+                continue
+            articles.append({
+                "title":     title,
+                "url":       href,
+                "source":    source_name,
+                "published": pub.isoformat() if pub else "",
+                "summary":   "",
+            })
+    except Exception as exc:
+        print(f"[ERROR] {source_name}: {exc}", file=sys.stderr)
     return articles
 
 
@@ -172,7 +213,6 @@ def deduplicate(articles: list[dict]) -> list[dict]:
 def scrape_all() -> list[dict]:
     since = cutoff_time()
     all_articles = []
-
     print(f"[INFO] Stahuji novinky od {since.strftime('%Y-%m-%d %H:%M UTC')} …", file=sys.stderr)
 
     # RSS feedy
@@ -180,19 +220,26 @@ def scrape_all() -> list[dict]:
         items = fetch_rss(name, url, since)
         print(f"[INFO] {name}: {len(items)} článků", file=sys.stderr)
         all_articles.extend(items)
-        time.sleep(0.5)  # slušnost vůči serverům
+        time.sleep(0.5)
 
-    # NÚKIB scraping
+    # NÚKIB – nukib.gov.cz/hrozby
     nukib_items = fetch_nukib(since)
-    print(f"[INFO] NÚKIB: {len(nukib_items)} článků", file=sys.stderr)
+    print(f"[INFO] NÚKIB hrozby: {len(nukib_items)} článků", file=sys.stderr)
     all_articles.extend(nukib_items)
 
-    # Deduplikace
+    # NÚKIB portál – aktuálně
+    portal_aktualne = fetch_nukib_portal(NUKIB_PORTAL_AKTUALNE, "NÚKIB portál – Aktuálně", since)
+    print(f"[INFO] NÚKIB portál Aktuálně: {len(portal_aktualne)} článků", file=sys.stderr)
+    all_articles.extend(portal_aktualne)
+
+    # NÚKIB portál – podpůrné materiály
+    portal_materialy = fetch_nukib_portal(NUKIB_PORTAL_MATERIALY, "NÚKIB portál – Materiály", since)
+    print(f"[INFO] NÚKIB portál Materiály: {len(portal_materialy)} článků", file=sys.stderr)
+    all_articles.extend(portal_materialy)
+
+    # Deduplikace a řazení
     all_articles = deduplicate(all_articles)
-
-    # Seřadit od nejnovějšího
     all_articles.sort(key=lambda x: x.get("published", ""), reverse=True)
-
     print(f"[INFO] Celkem po deduplikaci: {len(all_articles)} článků", file=sys.stderr)
     return all_articles
 
