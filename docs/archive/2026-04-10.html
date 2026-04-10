@@ -3,25 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kybernetický digest — 10. dubna 2026</title>
+  <title>Kyber digest — 10. dubna 2026</title>
   <style>
-    /* ===== Reset & proměnné ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #f5f6fa;
-      --surface:   #ffffff;
-      --border:    #e2e4ea;
-      --text:      #1a1d23;
-      --muted:     #6b7280;
-      --accent:    #2563eb;
-      --accent-h:  #1d4ed8;
-      --danger:    #dc2626;
-      --warn:      #d97706;
-      --success:   #16a34a;
-      --radius:    10px;
-      --shadow:    0 2px 8px rgba(0,0,0,.08);
-      --font:      system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --bg:      #f5f6fa;
+      --surface: #ffffff;
+      --border:  #e2e4ea;
+      --text:    #1a1d23;
+      --muted:   #6b7280;
+      --accent:  #2563eb;
+      --accent-h:#1d4ed8;
+      --radius:  10px;
+      --shadow:  0 2px 8px rgba(0,0,0,.08);
+      --font:    system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -45,18 +41,16 @@
       font-size: 16px;
     }
 
-    /* ===== Layout ===== */
     .page-wrap {
       max-width: 860px;
       margin: 0 auto;
       padding: 0 1rem 3rem;
     }
 
-    /* ===== Header ===== */
     header {
       background: var(--accent);
       color: #fff;
-      padding: 1.4rem 1rem;
+      padding: 1.2rem 1rem;
       margin-bottom: 2rem;
     }
     header .inner {
@@ -67,36 +61,14 @@
       gap: 1rem;
       flex-wrap: wrap;
     }
-    header .shield {
-      font-size: 2rem;
-      line-height: 1;
-    }
-    header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -.5px;
-    }
-    header .subtitle {
+    header .back-link {
+      color: rgba(255,255,255,.85);
       font-size: .9rem;
-      opacity: .85;
+      text-decoration: none;
     }
+    header .back-link:hover { color: #fff; text-decoration: underline; }
+    header h1 { font-size: 1.3rem; font-weight: 700; }
 
-    /* ===== Datový badge ===== */
-    .date-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      background: var(--accent);
-      color: #fff;
-      font-size: .8rem;
-      font-weight: 600;
-      padding: .25rem .75rem;
-      border-radius: 99px;
-      margin-bottom: 1.2rem;
-      letter-spacing: .02em;
-    }
-
-    /* ===== Karta ===== */
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -106,15 +78,13 @@
       margin-bottom: 1.5rem;
     }
     .card-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       margin-bottom: 1rem;
-      color: var(--text);
       border-bottom: 2px solid var(--border);
       padding-bottom: .5rem;
     }
 
-    /* ===== Digest obsah ===== */
     .digest-content h2.digest-h2 {
       font-size: 1.05rem;
       font-weight: 700;
@@ -123,7 +93,6 @@
       border-left: 4px solid var(--accent);
       background: color-mix(in srgb, var(--accent) 8%, transparent);
       border-radius: 0 var(--radius) var(--radius) 0;
-      color: var(--text);
     }
     .digest-content h3.digest-h3 {
       font-size: .95rem;
@@ -149,47 +118,16 @@
       border-radius: 0 6px 6px 0;
       line-height: 1.5;
     }
-    .digest-content ul li:hover {
-      border-left-color: var(--accent);
-    }
+    .digest-content ul li:hover { border-left-color: var(--accent); }
     .digest-content a {
       color: var(--accent);
       text-decoration: none;
       word-break: break-all;
     }
     .digest-content a:hover { text-decoration: underline; color: var(--accent-h); }
-    .digest-content em { color: var(--muted); font-style: italic; }
+    .digest-content em { color: var(--muted); }
     .digest-content strong { font-weight: 700; }
 
-    /* ===== Archív ===== */
-    .archive-list {
-      list-style: none;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: .5rem;
-    }
-    .archive-list li a {
-      display: block;
-      padding: .5rem .75rem;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: .88rem;
-      color: var(--text);
-      text-decoration: none;
-      transition: border-color .15s, background .15s;
-    }
-    .archive-list li a:hover {
-      border-color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 6%, transparent);
-      color: var(--accent);
-    }
-    .archive-list li a .arc-date {
-      font-size: .78rem;
-      color: var(--muted);
-      display: block;
-    }
-
-    /* ===== Footer ===== */
     footer {
       text-align: center;
       font-size: .8rem;
@@ -199,11 +137,9 @@
       border-top: 1px solid var(--border);
     }
 
-    /* ===== Responzivita ===== */
     @media (max-width: 600px) {
-      .card { padding: 1.1rem 1.1rem; }
-      header h1 { font-size: 1.2rem; }
-      .archive-list { grid-template-columns: 1fr 1fr; }
+      .card { padding: 1.1rem; }
+      header h1 { font-size: 1.1rem; }
     }
   </style>
 </head>
@@ -211,21 +147,16 @@
 
 <header>
   <div class="inner">
-    <div class="shield">🛡️</div>
     <div>
-      <h1>Kybernetický digest</h1>
-      <div class="subtitle">Automatický přehled novinek z oblasti kybernetické bezpečnosti</div>
+      <a class="back-link" href="../index.html">← Zpět na dnešní digest</a>
+      <h1>🛡️ Kyber digest — 10. dubna 2026</h1>
     </div>
   </div>
 </header>
 
 <div class="page-wrap">
-
-  <!-- Dnešní digest -->
-  <div class="date-badge">📅 10. dubna 2026</div>
-
   <div class="card">
-    <div class="card-title">Dnešní přehled</div>
+    <div class="card-title">Přehled za 10. dubna 2026</div>
     <div class="digest-content">
       <p>[INFO] Volám Gemini (gemini-2.5-flash) pro 17 článků …</p>
 <p>[INFO] Gemini odpověděl, délka: 3521 znaků</p>
@@ -251,196 +182,11 @@
 
     </div>
   </div>
-
-  <!-- Archív -->
-  
-  <div class="card">
-    <div class="card-title">📂 Archív — posledních 25 dní</div>
-    <ul class="archive-list">
-      
-      <li>
-        <a href="archive/2026-04-10.html">
-          <span class="arc-date">2026-04-10</span>
-          Digest 10. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-09.html">
-          <span class="arc-date">2026-04-09</span>
-          Digest 9. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-08.html">
-          <span class="arc-date">2026-04-08</span>
-          Digest 8. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-07.html">
-          <span class="arc-date">2026-04-07</span>
-          Digest 7. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-06.html">
-          <span class="arc-date">2026-04-06</span>
-          Digest 6. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-05.html">
-          <span class="arc-date">2026-04-05</span>
-          Digest 5. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-04.html">
-          <span class="arc-date">2026-04-04</span>
-          Digest 4. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-03.html">
-          <span class="arc-date">2026-04-03</span>
-          Digest 3. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-02.html">
-          <span class="arc-date">2026-04-02</span>
-          Digest 2. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-01.html">
-          <span class="arc-date">2026-04-01</span>
-          Digest 1. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-31.html">
-          <span class="arc-date">2026-03-31</span>
-          Digest 31. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-30.html">
-          <span class="arc-date">2026-03-30</span>
-          Digest 30. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-29.html">
-          <span class="arc-date">2026-03-29</span>
-          Digest 29. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-28.html">
-          <span class="arc-date">2026-03-28</span>
-          Digest 28. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-27.html">
-          <span class="arc-date">2026-03-27</span>
-          Digest 27. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-26.html">
-          <span class="arc-date">2026-03-26</span>
-          Digest 26. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-25.html">
-          <span class="arc-date">2026-03-25</span>
-          Digest 25. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-24.html">
-          <span class="arc-date">2026-03-24</span>
-          Digest 24. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-23.html">
-          <span class="arc-date">2026-03-23</span>
-          Digest 23. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-22.html">
-          <span class="arc-date">2026-03-22</span>
-          Digest 22. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-21.html">
-          <span class="arc-date">2026-03-21</span>
-          Digest 21. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-20.html">
-          <span class="arc-date">2026-03-20</span>
-          Digest 20. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-19.html">
-          <span class="arc-date">2026-03-19</span>
-          Digest 19. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-18.html">
-          <span class="arc-date">2026-03-18</span>
-          Digest 18. března 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-17.html">
-          <span class="arc-date">2026-03-17</span>
-          Digest 17. března 2026
-        </a>
-      </li>
-      
-    </ul>
-  </div>
-  
-
 </div>
 
 <footer>
-  Generováno 2026-04-10 08:17 UTC &nbsp;·&nbsp; Zdroje: NÚKIB, CERT.CZ, Krebs on Security, The Hacker News, BleepingComputer, ENISA, Schneier on Security
+  Generováno 2026-04-10 08:17 UTC &nbsp;·&nbsp;
+  <a href="../index.html" style="color: var(--accent)">Zpět na hlavní stránku</a>
 </footer>
 
 </body>
