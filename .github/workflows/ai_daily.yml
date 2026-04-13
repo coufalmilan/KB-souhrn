@@ -4,7 +4,8 @@ on:
   schedule:
     # 7:15 UTC = 8:15 SEČ (zimní čas) / 9:15 SELČ (letní čas)
     # 15 minut po kyber digestu, aby nedošlo ke konfliktům
-    - cron: '15 7 * * *'
+    # Spouštíme jen Po–Pá; víkendy a státní svátky ošetřuje check_workday.py
+    - cron: '15 7 * * 1-5'
   workflow_dispatch:          # umožňuje ruční spuštění z GitHub UI
 
 permissions:
@@ -40,9 +41,20 @@ jobs:
         run: pip install -r requirements.txt
 
       # -----------------------------------------------------------------------
-      # 4. Scraping AI zdrojů
+      # 4. Kontrola pracovního dne (víkendy + státní svátky → skip)
+      # -----------------------------------------------------------------------
+      - name: Kontrola pracovního dne
+        id: workday
+        run: |
+          OUTPUT=$(python scripts/check_workday.py)
+          echo "$OUTPUT" >> "$GITHUB_OUTPUT"
+          echo "[INFO] Výstup check_workday: $OUTPUT"
+
+      # -----------------------------------------------------------------------
+      # 5. Scraping AI zdrojů
       # -----------------------------------------------------------------------
       - name: Scraping AI zdrojů
+        if: steps.workday.outputs.skip != 'true'
         run: |
           LAST_RUN=""
           if [ -f docs/ai/last_run.txt ]; then
@@ -51,23 +63,26 @@ jobs:
           AI_LAST_RUN_TS="$LAST_RUN" python scripts/ai_scraper.py > /tmp/ai_articles.json
 
       # -----------------------------------------------------------------------
-      # 5. Summarizace — Gemini API
+      # 6. Summarizace — Gemini API
       # -----------------------------------------------------------------------
       - name: Summarizace (Gemini)
+        if: steps.workday.outputs.skip != 'true'
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/ai_summarizer.py /tmp/ai_articles.json > /tmp/ai_summary.md
 
       # -----------------------------------------------------------------------
-      # 6. Generování HTML webu (docs/ai/)
+      # 7. Generování HTML webu (docs/ai/)
       # -----------------------------------------------------------------------
       - name: Generování webu (docs/ai/)
+        if: steps.workday.outputs.skip != 'true'
         run: python scripts/build_ai_web.py /tmp/ai_summary.md
 
       # -----------------------------------------------------------------------
-      # 7. Odeslání emailu
+      # 8. Odeslání emailu
       # -----------------------------------------------------------------------
       - name: Odeslání emailu
+        if: steps.workday.outputs.skip != 'true'
         env:
           BREVO_SMTP_USER:     ${{ secrets.BREVO_SMTP_USER }}
           BREVO_SMTP_PASSWORD: ${{ secrets.BREVO_SMTP_PASSWORD }}
@@ -76,9 +91,10 @@ jobs:
         run: python scripts/ai_mailer.py /tmp/ai_summary.md
 
       # -----------------------------------------------------------------------
-      # 8. Commit a push vygenerovaných souborů
+      # 9. Commit a push vygenerovaných souborů
       # -----------------------------------------------------------------------
       - name: Commit a push docs/ai/
+        if: steps.workday.outputs.skip != 'true'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"

@@ -1,14 +1,21 @@
 """
 summarizer.py — Zavolá Gemini API a vytvoří strukturovaný přehled v češtině.
+Používá nový balíček google-genai (google.generativeai je deprecated).
 """
 
 import os
 import sys
 import json
 import textwrap
-import google.generativeai as genai
+import time
+from google import genai
+from google.genai import types
 
 MODEL_NAME = "gemini-2.5-flash"
+
+# Retry nastavení pro případ přetížení API (503)
+MAX_RETRIES = 4
+RETRY_BASE_DELAY = 30  # sekund, zdvojnásobí se s každým pokusem
 
 SYSTEM_PROMPT = textwrap.dedent("""\
     Jsi expert na kybernetickou bezpečnost a píšeš denní přehled pro české IT profesionály a bezpečnostní analytiky.
@@ -73,35 +80,43 @@ def summarize(articles: list[dict]) -> str:
         print("[ERROR] Chybí proměnná prostředí GEMINI_API_KEY", file=sys.stderr)
         sys.exit(1)
 
-    genai.configure(api_key=api_key)
-
-    model = genai.GenerativeModel(
-        model_name=MODEL_NAME,
-        system_instruction=SYSTEM_PROMPT,
-    )
-
+    client = genai.Client(api_key=api_key)
     user_prompt = build_user_prompt(articles)
 
-    print(f"[INFO] Volám Gemini ({MODEL_NAME}) pro {len(articles)} článků …")
+    print(f"[INFO] Volám Gemini ({MODEL_NAME}) pro {len(articles)} článků …", file=sys.stderr)
 
-    try:
-        response = model.generate_content(
-            user_prompt,
-            generation_config=genai.types.GenerationConfig(
-                temperature=0.3,
-                max_output_tokens=4096,
-            ),
-        )
-        text = response.text.strip()
-        print("[INFO] Gemini odpověděl, délka:", len(text), "znaků")
-        return text
-    except Exception as exc:
-        print(f"[ERROR] Gemini API: {exc}", file=sys.stderr)
-        sys.exit(1)
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            response = client.models.generate_content(
+                model=MODEL_NAME,
+                contents=user_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=SYSTEM_PROMPT,
+                    temperature=0.3,
+                    max_output_tokens=4096,
+                ),
+            )
+            text = response.text.strip()
+            print(f"[INFO] Gemini odpověděl, délka: {len(text)} znaků", file=sys.stderr)
+            return text
+
+        except Exception as exc:
+            err_str = str(exc)
+            is_transient = any(x in err_str for x in ["503", "overloaded", "high demand", "Timeout", "quota"])
+            if is_transient and attempt < MAX_RETRIES:
+                delay = RETRY_BASE_DELAY * (2 ** (attempt - 1))
+                print(
+                    f"[WARN] Gemini API dočasná chyba (pokus {attempt}/{MAX_RETRIES}): {exc}",
+                    file=sys.stderr,
+                )
+                print(f"[WARN] Čekám {delay}s před dalším pokusem …", file=sys.stderr)
+                time.sleep(delay)
+                continue
+            print(f"[ERROR] Gemini API selhalo po {attempt} pokusech: {exc}", file=sys.stderr)
+            sys.exit(1)
 
 
 if __name__ == "__main__":
-    # Čte JSON ze stdin nebo ze souboru articles.json
     if len(sys.argv) > 1:
         with open(sys.argv[1], encoding="utf-8") as f:
             articles = json.load(f)
