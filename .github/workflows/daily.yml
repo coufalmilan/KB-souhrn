@@ -103,4 +103,5 @@ jobs:
           TODAY=$(date +%Y-%m-%d)
           git diff --cached --quiet && echo "Žádné změny k commitování." || \
             git commit -m "digest: ${TODAY}"
+          git pull --rebase origin main
           git push
