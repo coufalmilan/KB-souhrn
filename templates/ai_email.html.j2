@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI digest — {{ date_cz }}</title>
+  <title>AI digest - {{ date_cz }}</title>
   <!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
   <style>
     body, table, td, p, a, li { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
@@ -18,161 +18,157 @@
                    "Helvetica Neue", Arial, sans-serif;
       font-size: 15px;
       color: #1a1d23;
-      line-height: 1.65;
+      line-height: 1.6;
     }
 
-    .email-wrapper {
-      width: 100%;
-      background-color: #f0eef8;
-      padding: 28px 12px;
-    }
-
-    .email-container {
-      max-width: 620px;
-      margin: 0 auto;
-      background-color: #ffffff;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid #dddaea;
-      box-shadow: 0 4px 16px rgba(100, 60, 180, 0.10);
-    }
-
-    /* ── Hlavička ── */
+    /* Header */
     .email-header {
       background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
-      padding: 28px 36px 24px;
+      padding: 24px 40px;
       color: #ffffff;
     }
-    .email-header .label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      opacity: .75;
-      margin-bottom: 6px;
-    }
     .email-header h1 {
-      font-size: 22px;
-      font-weight: 800;
+      font-size: 20px;
+      font-weight: 700;
       margin: 0 0 4px;
-      letter-spacing: -.3px;
     }
-    .email-header .date {
+    .email-header .subtitle {
       font-size: 13px;
-      opacity: .80;
+      opacity: .85;
       margin: 0;
     }
 
-    /* ── Tělo ── */
+    /* Body */
     .email-body {
-      padding: 28px 36px 20px;
+      padding: 28px 44px;
     }
 
-    /* ── Sekce (## nadpisy) ── */
+    /* Digest obsah */
     .digest-content h2.digest-h2 {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: .05em;
-      text-transform: uppercase;
+      font-size: 15px;
+      font-weight: 700;
       color: #ffffff;
       background-color: #7c3aed;
-      padding: 7px 14px;
-      border-radius: 6px;
-      margin: 24px 0 14px;
-      display: block;
+      padding: 8px 12px;
+      border-left: 4px solid #5b21b6;
+      border-radius: 0 6px 6px 0;
+      margin: 20px 0 10px;
     }
     .digest-content h3.digest-h3 {
       font-size: 13px;
       font-weight: 600;
-      color: #7c3aed;
-      margin: 14px 0 6px;
+      color: #6b7280;
+      margin: 12px 0 6px;
     }
-
-    /* ── Odstavce ── */
     .digest-content p {
       font-size: 14px;
       color: #374151;
       margin: 0 0 10px;
-      line-height: 1.65;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
-
-    /* ── Položky seznamu = jednotlivé zprávy ── */
     .digest-content ul {
       list-style: none;
       padding: 0;
-      margin: 0 0 8px;
+      margin: 0 0 10px;
     }
     .digest-content ul li {
       font-size: 13.5px;
-      color: #1f2937;
-      padding: 12px 14px 12px 16px;
-      margin-bottom: 8px;
-      border-left: 3px solid #7c3aed;
+      color: #374151;
+      padding: 10px 16px 10px 14px;
+      margin-bottom: 6px;
+      border-left: 3px solid #c4b5fd;
       background-color: #faf8ff;
-      border-radius: 0 8px 8px 0;
-      line-height: 1.6;
+      border-radius: 0 5px 5px 0;
+      line-height: 1.55;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
-
-    /* ── Shrnutí dne – vizuálně odlišené ── */
-    .digest-content h2.digest-h2:last-of-type {
-      background-color: #4c1d95;
-    }
-
-    /* ── Inline styly ── */
     .digest-content a {
       color: #7c3aed;
       text-decoration: none;
-      font-weight: 500;
       word-break: break-all;
     }
-    .digest-content a:hover { text-decoration: underline; }
     .digest-content em { color: #6b7280; font-style: italic; }
     .digest-content strong { font-weight: 700; color: #111827; }
 
-    /* ── Patička ── */
+    /* Footer */
     .email-footer {
       background-color: #f5f3ff;
       border-top: 1px solid #e9e4f5;
-      padding: 16px 36px;
+      padding: 16px 40px;
       text-align: center;
-      font-size: 11.5px;
+      font-size: 12px;
       color: #9ca3af;
-      line-height: 1.6;
     }
-    .email-footer a { color: #7c3aed; text-decoration: none; }
+    .email-footer a {
+      color: #7c3aed;
+      text-decoration: none;
+    }
 
-    @media only screen and (max-width: 480px) {
-      .email-header { padding: 20px 18px 16px !important; }
-      .email-body   { padding: 20px 18px !important; }
-      .email-footer { padding: 14px 18px !important; }
+    @media only screen and (max-width: 640px) {
+      .email-container { width: 100% !important; }
+      .email-header, .email-body, .email-footer {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="email-wrapper">
-    <div class="email-container">
+  <!-- Outer wrapper table -->
+  <table width="100%" cellpadding="0" cellspacing="0" border="0"
+         style="background-color:#f0eef8; padding:24px 12px;">
+    <tr>
+      <td align="center">
 
-      <!-- Hlavička -->
-      <div class="email-header">
-        <div class="label">Denní přehled · AI</div>
-        <h1>🤖 AI digest</h1>
-        <p class="date">{{ date_cz }}</p>
-      </div>
+        <!--[if mso]>
+        <table width="640" cellpadding="0" cellspacing="0" border="0">
+        <tr><td>
+        <![endif]-->
 
-      <!-- Obsah -->
-      <div class="email-body">
-        <div class="digest-content">
-          {{ summary | safe }}
-        </div>
-      </div>
+        <!-- Inner container table -->
+        <table class="email-container" width="640" cellpadding="0" cellspacing="0" border="0"
+               style="max-width:640px; width:100%; background-color:#ffffff;
+                      border-radius:10px; overflow:hidden;
+                      border:1px solid #dddaea;">
 
-      <!-- Patička -->
-      <div class="email-footer">
-        Automaticky generováno pomocí Gemini AI &nbsp;·&nbsp;
-        Zdroje: OpenAI, DeepMind, Hugging Face, MIT Tech Review, VentureBeat, TechCrunch, Ars Technica, The Verge, Wired
-      </div>
+          <!-- Hlavicka -->
+          <tr>
+            <td class="email-header">
+              <h1>&#129302; AI digest</h1>
+              <p class="subtitle">{{ date_cz }}</p>
+            </td>
+          </tr>
 
-    </div>
-  </div>
+          <!-- Obsah -->
+          <tr>
+            <td class="email-body">
+              <div class="digest-content">
+                {{ summary | safe }}
+              </div>
+            </td>
+          </tr>
+
+          <!-- Paticka -->
+          <tr>
+            <td class="email-footer">
+              Automaticky generovano pomoci Gemini AI ze zdroju OpenAI, Google DeepMind,
+              Hugging Face, MIT Technology Review, VentureBeat, TechCrunch, Ars Technica,
+              The Verge a Wired.<br>
+              Pokud nechcete dostavat tento email, odhlaste se u administratora.
+            </td>
+          </tr>
+
+        </table>
+
+        <!--[if mso]>
+        </td></tr>
+        </table>
+        <![endif]-->
+
+      </td>
+    </tr>
+  </table>
 </body>
 </html>

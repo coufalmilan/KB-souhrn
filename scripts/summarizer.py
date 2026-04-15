@@ -1,6 +1,7 @@
 """
 summarizer.py — Zavolá Gemini API a vytvoří strukturovaný přehled v češtině.
 Používá nový balíček google-genai (google.generativeai je deprecated).
+Při 503/přetížení zkouší fallback modely: 2.5-flash → 2.0-flash → 1.5-flash.
 """
 
 import os
@@ -11,11 +12,16 @@ import time
 from google import genai
 from google.genai import types
 
-MODEL_NAME = "gemini-2.5-flash"
+# Modely v pořadí preference — při přetížení přechází na další
+MODELS = [
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+]
 
-# Retry nastavení pro případ přetížení API (503)
-MAX_RETRIES = 4
-RETRY_BASE_DELAY = 30  # sekund, zdvojnásobí se s každým pokusem
+# Počet pokusů na každý model při dočasné chybě
+RETRIES_PER_MODEL = 2
+RETRY_DELAY = 30  # sekund
 
 SYSTEM_PROMPT = textwrap.dedent("""\
     Jsi expert na kybernetickou bezpečnost a píšeš denní přehled pro české IT profesionály a bezpečnostní analytiky.
@@ -63,10 +69,24 @@ def build_user_prompt(articles: list[dict]) -> str:
     return "\n".join(lines)
 
 
+def call_gemini(client, model: str, user_prompt: str) -> str:
+    """Zavolá jeden konkrétní model. Hodí výjimku při chybě."""
+    response = client.models.generate_content(
+        model=model,
+        contents=user_prompt,
+        config=types.GenerateContentConfig(
+            system_instruction=SYSTEM_PROMPT,
+            temperature=0.3,
+            max_output_tokens=4096,
+        ),
+    )
+    return response.text.strip()
+
+
 def summarize(articles: list[dict]) -> str:
     """
     Zavolá Gemini API a vrátí markdown text souhrnu.
-    Pokud articles je prázdný, vrátí informativní zprávu.
+    Zkouší postupně MODELS; při přetížení (503) přechází na další model.
     """
     if not articles:
         return (
@@ -83,37 +103,31 @@ def summarize(articles: list[dict]) -> str:
     client = genai.Client(api_key=api_key)
     user_prompt = build_user_prompt(articles)
 
-    print(f"[INFO] Volám Gemini ({MODEL_NAME}) pro {len(articles)} článků …", file=sys.stderr)
+    for model in MODELS:
+        print(f"[INFO] Zkouším model {model} pro {len(articles)} článků …", file=sys.stderr)
+        for attempt in range(1, RETRIES_PER_MODEL + 1):
+            try:
+                text = call_gemini(client, model, user_prompt)
+                print(f"[INFO] {model} odpověděl, délka: {len(text)} znaků", file=sys.stderr)
+                return text
+            except Exception as exc:
+                err_str = str(exc)
+                is_transient = any(x in err_str for x in ["503", "overloaded", "high demand", "UNAVAILABLE", "Timeout"])
+                if is_transient:
+                    if attempt < RETRIES_PER_MODEL:
+                        print(f"[WARN] {model} přetížen (pokus {attempt}/{RETRIES_PER_MODEL}), čekám {RETRY_DELAY}s …", file=sys.stderr)
+                        time.sleep(RETRY_DELAY)
+                        continue
+                    else:
+                        print(f"[WARN] {model} selhal {RETRIES_PER_MODEL}x, zkouším další model …", file=sys.stderr)
+                        break  # přejdi na další model
+                else:
+                    # Jiná chyba (API klíč, syntax) — není smysl zkoušet dál
+                    print(f"[ERROR] {model}: {exc}", file=sys.stderr)
+                    sys.exit(1)
 
-    for attempt in range(1, MAX_RETRIES + 1):
-        try:
-            response = client.models.generate_content(
-                model=MODEL_NAME,
-                contents=user_prompt,
-                config=types.GenerateContentConfig(
-                    system_instruction=SYSTEM_PROMPT,
-                    temperature=0.3,
-                    max_output_tokens=4096,
-                ),
-            )
-            text = response.text.strip()
-            print(f"[INFO] Gemini odpověděl, délka: {len(text)} znaků", file=sys.stderr)
-            return text
-
-        except Exception as exc:
-            err_str = str(exc)
-            is_transient = any(x in err_str for x in ["503", "overloaded", "high demand", "Timeout", "quota"])
-            if is_transient and attempt < MAX_RETRIES:
-                delay = RETRY_BASE_DELAY * (2 ** (attempt - 1))
-                print(
-                    f"[WARN] Gemini API dočasná chyba (pokus {attempt}/{MAX_RETRIES}): {exc}",
-                    file=sys.stderr,
-                )
-                print(f"[WARN] Čekám {delay}s před dalším pokusem …", file=sys.stderr)
-                time.sleep(delay)
-                continue
-            print(f"[ERROR] Gemini API selhalo po {attempt} pokusech: {exc}", file=sys.stderr)
-            sys.exit(1)
+    print("[ERROR] Všechny Gemini modely selhaly. Zkuste spustit workflow znovu.", file=sys.stderr)
+    sys.exit(1)
 
 
 if __name__ == "__main__":
