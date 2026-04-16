@@ -12,11 +12,12 @@ import time
 from google import genai
 from google.genai import types
 
-# Modely v pořadí preference — při přetížení přechází na další
+# Modely v pořadí preference — při přetížení nebo nedostupnosti přechází na další
+# gemini-2.0-flash byl stažen (404 NOT_FOUND), nepoužíváme ho
 MODELS = [
     "gemini-2.5-flash",
-    "gemini-2.0-flash",
     "gemini-1.5-flash",
+    "gemini-1.5-pro",
 ]
 
 # Počet pokusů na každý model při dočasné chybě
@@ -111,8 +112,13 @@ def summarize(articles: list[dict]) -> str:
             except Exception as exc:
                 err_str = str(exc)
                 is_transient = any(x in err_str for x in ["503", "overloaded", "high demand", "UNAVAILABLE", "Timeout"])
-                if is_transient:
-                    if attempt < RETRIES_PER_MODEL:
+                is_model_gone = any(x in err_str for x in ["404", "NOT_FOUND", "no longer available", "deprecated"])
+                if is_transient or is_model_gone:
+                    if is_model_gone:
+                        # Model neexistuje — okamžitě na další
+                        print(f"[WARN] {model} nedostupný/stažen, zkouším další model …", file=sys.stderr)
+                        break
+                    elif attempt < RETRIES_PER_MODEL:
                         print(f"[WARN] {model} přetížen (pokus {attempt}/{RETRIES_PER_MODEL}), čekám {RETRY_DELAY}s …", file=sys.stderr)
                         time.sleep(RETRY_DELAY)
                         continue
