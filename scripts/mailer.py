@@ -70,7 +70,18 @@ def send(summary_html: str, today: date | None = None) -> None:
 
     recipients = [r.strip() for r in email_to_raw.split(",") if r.strip()]
     date_cz    = format_date_cz(today)
-    subject    = f"Kyber digest — {date_cz}"
+
+    # Extrahuj dynamický předmět z první řádky (formát "SUBJECT: ...")
+    subject = f"Kyber digest — {date_cz}"  # fallback
+    lines_for_subject = summary_html.strip().splitlines()
+    for line in lines_for_subject[:3]:
+        if line.upper().startswith("SUBJECT:"):
+            extracted = line.split(":", 1)[1].strip()
+            if extracted:
+                subject = f"{extracted} [{date_cz}]"
+                # Odstraň SUBJECT řádku z obsahu emailu
+                summary_html = summary_html.replace(line, "", 1).lstrip("\n")
+            break
 
     # Sestavení emailu
     html_body = render_email_html(summary_html, today)
