@@ -1,7 +1,7 @@
 """
 ai_summarizer.py — Zavolá Gemini API a vytvoří strukturovaný přehled AI novinek v češtině.
 Používá nový balíček google-genai (google.generativeai je deprecated).
-Při 503/přetížení zkouší fallback modely: 2.5-flash → 2.0-flash → 1.5-flash.
+Při 503/přetížení zkouší fallback modely: 2.5-flash → 2.0-flash → 2.0-flash-lite.
 """
 
 import os
@@ -13,11 +13,10 @@ from google import genai
 from google.genai import types
 
 # Modely v pořadí preference — při přetížení nebo nedostupnosti přechází na další
-# gemini-2.0-flash byl stažen (404 NOT_FOUND), nepoužíváme ho
 MODELS = [
-    "gemini-2.5-flash",
-    "gemini-1.5-flash",
-    "gemini-1.5-pro",
+    "gemini-2.5-flash",      # primární (nejkvalitnější)
+    "gemini-2.0-flash",      # stabilní záloha
+    "gemini-2.0-flash-lite", # odlehčená záloha
 ]
 
 # Počet pokusů na každý model při dočasné chybě
