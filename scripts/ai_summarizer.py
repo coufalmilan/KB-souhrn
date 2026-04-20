@@ -14,10 +14,12 @@ from google.genai import types
 
 # Modely v pořadí preference — při přetížení nebo nedostupnosti přechází na další
 MODELS = [
-    "gemini-2.5-flash",      # primární (nejkvalitnější)
-    "gemini-2.0-flash",      # stabilní záloha
-    "gemini-2.0-flash-lite", # odlehčená záloha
+    "gemini-2.5-flash",  # primární (nejkvalitnější)
+    "gemini-2.5-pro",    # záloha pro případ přetížení flash
 ]
+
+# Max. počet článků předaných modelu — příliš velký prompt způsobuje přetížení
+MAX_ARTICLES = 50
 
 # Počet pokusů na každý model při dočasné chybě
 RETRIES_PER_MODEL = 2
@@ -116,6 +118,11 @@ def summarize(articles: list[dict]) -> str:
             "Za posledních 24 hodin nebyly nalezeny žádné nové články "
             "z monitorovaných AI zdrojů.\n"
         )
+
+    # Omez počet článků — příliš velký prompt přetěžuje model
+    if len(articles) > MAX_ARTICLES:
+        print(f"[INFO] Ořezávám {len(articles)} článků na {MAX_ARTICLES} nejnovějších.", file=sys.stderr)
+        articles = articles[:MAX_ARTICLES]
 
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
