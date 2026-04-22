@@ -101,7 +101,7 @@ def call_gemini(client, model: str, user_prompt: str) -> str:
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_PROMPT,
             temperature=0.3,
-            max_output_tokens=4096,
+            max_output_tokens=8192,
         ),
     )
     return response.text.strip()

@@ -76,16 +76,17 @@ def markdown_to_html(md: str) -> str:
     return "\n".join(html_lines)
 
 
-def render_email_html(summary_html: str, today: date) -> str:
+def render_email_html(summary_html: str, today: date, subject_line: str = "") -> str:
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         autoescape=select_autoescape(["html"]),
     )
     tmpl = env.get_template("ai_email.html.j2")
     return tmpl.render(
-        date_iso = today.isoformat(),
-        date_cz  = format_date_cz(today),
-        summary  = summary_html,
+        date_iso     = today.isoformat(),
+        date_cz      = format_date_cz(today),
+        summary      = summary_html,
+        subject_line = subject_line,
     )
 
 
@@ -113,7 +114,17 @@ def send(summary_html: str, today: date | None = None) -> None:
     date_cz    = format_date_cz(today)
     subject    = f"AI digest — {date_cz}"
 
-    html_body = render_email_html(summary_html, today)
+    # Extrahuj dynamický předmět z první řádky (formát "SUBJECT: ...")
+    lines_for_subject = summary_html.strip().splitlines()
+    for line in lines_for_subject[:3]:
+        if line.upper().startswith("SUBJECT:"):
+            extracted = line.split(":", 1)[1].strip()
+            if extracted:
+                subject = f"{extracted} [{date_cz}]"
+                summary_html = summary_html.replace(line, "", 1).lstrip("\n")
+            break
+
+    html_body = render_email_html(summary_html, today, subject_line=subject)
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject

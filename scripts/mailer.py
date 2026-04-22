@@ -35,16 +35,17 @@ def format_date_cz(d) -> str:
     return f"{d.day}. {months[d.month]} {d.year}"
 
 
-def render_email_html(summary_html: str, today: date) -> str:
+def render_email_html(summary_html: str, today: date, subject_line: str = "") -> str:
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         autoescape=select_autoescape(["html"]),
     )
     tmpl = env.get_template("email.html.j2")
     return tmpl.render(
-        date_iso = today.isoformat(),
-        date_cz  = format_date_cz(today),
-        summary  = summary_html,
+        date_iso     = today.isoformat(),
+        date_cz      = format_date_cz(today),
+        summary      = summary_html,
+        subject_line = subject_line,
     )
 
 
@@ -84,7 +85,7 @@ def send(summary_html: str, today: date | None = None) -> None:
             break
 
     # Sestavení emailu
-    html_body = render_email_html(summary_html, today)
+    html_body = render_email_html(summary_html, today, subject_line=subject)
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject

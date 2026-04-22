@@ -3,141 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI digest - {{ date_cz }}</title>
+  <title>AI digest — {{ date_cz }}</title>
   <!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
   <style>
-    body, table, td, p, a, li { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+    body, table, td, p, a, li, h2, h3 {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
     table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
     img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
 
     body {
       margin: 0 !important;
       padding: 0 !important;
-      background-color: #f0eef8;
+      background-color: #f5f3ff;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                    "Helvetica Neue", Arial, sans-serif;
-      font-size: 15px;
-      color: #1a1d23;
+      font-size: 14px;
+      color: #374151;
       line-height: 1.6;
     }
 
-    /* Header */
-    .email-header {
-      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
-      padding: 24px 40px;
-      color: #ffffff;
-    }
-    .email-header h1 {
-      font-size: 20px;
-      font-weight: 700;
-      margin: 0 0 4px;
-    }
-    .email-header .subtitle {
-      font-size: 13px;
-      opacity: .85;
-      margin: 0;
-    }
+    .email-body { padding: 20px 28px 16px; }
 
-    /* Body */
-    .email-body {
-      padding: 28px 44px;
-    }
-
-    /* Digest obsah */
+    /* Sekce — nadpis */
     .digest-content h2.digest-h2 {
-      font-size: 15px;
+      font-size: 10px;
       font-weight: 700;
-      color: #ffffff;
-      background-color: #7c3aed;
-      padding: 8px 12px;
-      border-left: 4px solid #5b21b6;
-      border-radius: 0 6px 6px 0;
-      margin: 20px 0 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #7c3aed;
+      background: none;
+      border-left: none;
+      border-bottom: 2px solid #ede9fe;
+      border-radius: 0;
+      padding: 0 0 5px 0;
+      margin: 16px 0 0;
     }
+    .digest-content h2.digest-h2:first-child { margin-top: 0; }
+
     .digest-content h3.digest-h3 {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: #6b7280;
-      margin: 12px 0 6px;
+      margin: 10px 0 4px;
     }
-    .digest-content p {
-      font-size: 14px;
-      color: #374151;
-      margin: 0 0 10px;
-      word-wrap: break-word;
-      overflow-wrap: break-word;
-    }
+
+    /* Položky seznamu */
     .digest-content ul {
       list-style: none;
       padding: 0;
-      margin: 0 0 10px;
+      margin: 0;
     }
     .digest-content ul li {
       font-size: 13.5px;
       color: #374151;
-      padding: 10px 16px 10px 14px;
-      margin-bottom: 6px;
-      border-left: 3px solid #c4b5fd;
-      background-color: #faf8ff;
-      border-radius: 0 5px 5px 0;
-      line-height: 1.55;
+      padding: 7px 0;
+      border-bottom: 1px solid #f5f3ff;
+      border-left: none;
+      background: none;
+      border-radius: 0;
+      line-height: 1.6;
       word-wrap: break-word;
       overflow-wrap: break-word;
     }
-    .digest-content a {
-      color: #7c3aed;
-      text-decoration: none;
-      word-break: break-all;
+
+    /* Odstavce */
+    .digest-content p {
+      font-size: 13.5px;
+      color: #374151;
+      margin: 6px 0 0;
+      line-height: 1.6;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
+
+    .digest-content a { color: #7c3aed; text-decoration: none; }
+    .digest-content a:hover { text-decoration: underline; }
     .digest-content em { color: #6b7280; font-style: italic; }
     .digest-content strong { font-weight: 700; color: #111827; }
 
-    /* Footer */
-    .email-footer {
-      background-color: #f5f3ff;
-      border-top: 1px solid #e9e4f5;
-      padding: 16px 40px;
-      text-align: center;
-      font-size: 12px;
-      color: #9ca3af;
-    }
-    .email-footer a {
-      color: #7c3aed;
-      text-decoration: none;
-    }
-
-    @media only screen and (max-width: 640px) {
-      .email-container { width: 100% !important; }
-      .email-header, .email-body, .email-footer {
-        padding-left: 20px !important;
-        padding-right: 20px !important;
-      }
+    @media only screen and (max-width: 480px) {
+      .email-body { padding: 16px 18px !important; }
+      .email-header-td { padding: 14px 18px 12px !important; }
+      .email-footer-td { padding: 10px 18px !important; }
     }
   </style>
 </head>
 <body>
-  <!-- Outer wrapper table -->
   <table width="100%" cellpadding="0" cellspacing="0" border="0"
-         style="background-color:#f0eef8; padding:24px 12px;">
+         style="background-color:#f5f3ff;">
     <tr>
-      <td align="center">
+      <td align="center" style="padding:16px 8px;">
 
         <!--[if mso]>
-        <table width="640" cellpadding="0" cellspacing="0" border="0">
-        <tr><td>
+        <table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td>
         <![endif]-->
 
-        <!-- Inner container table -->
-        <table class="email-container" width="640" cellpadding="0" cellspacing="0" border="0"
-               style="max-width:640px; width:100%; background-color:#ffffff;
-                      border-radius:10px; overflow:hidden;
-                      border:1px solid #dddaea;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0"
+               style="max-width:600px;width:100%;background:#ffffff;
+                      border-radius:8px;overflow:hidden;
+                      border:1px solid #ede9fe;">
 
-          <!-- Hlavicka -->
+          <!-- Hlavička -->
           <tr>
-            <td class="email-header">
-              <h1>&#129302; AI digest</h1>
-              <p class="subtitle">{{ date_cz }}</p>
+            <td class="email-header-td"
+                style="background:#1e1b4b;padding:18px 28px 16px;">
+              <p style="margin:0 0 4px;font-size:10px;font-weight:600;
+                        letter-spacing:.12em;text-transform:uppercase;color:#818cf8;">
+                &#129302; AI digest
+              </p>
+              <p style="margin:0;font-size:20px;font-weight:700;
+                        color:#ffffff;line-height:1.2;">
+                {{ date_cz }}
+              </p>
+              {% if subject_line %}
+              <p style="margin:4px 0 0;font-size:12px;color:#a5b4fc;
+                        line-height:1.4;">
+                {{ subject_line }}
+              </p>
+              {% endif %}
             </td>
           </tr>
 
@@ -150,21 +135,22 @@
             </td>
           </tr>
 
-          <!-- Paticka -->
+          <!-- Patička -->
           <tr>
-            <td class="email-footer">
-              Automaticky generovano pomoci Gemini AI ze zdroju OpenAI, Google DeepMind,
+            <td class="email-footer-td"
+                style="background:#faf5ff;border-top:1px solid #ede9fe;
+                       padding:10px 28px;text-align:center;
+                       font-size:11px;color:#94a3b8;line-height:1.5;">
+              Automaticky generováno pomocí Gemini AI ze zdrojů OpenAI, Google DeepMind,
               Hugging Face, MIT Technology Review, VentureBeat, TechCrunch, Ars Technica,
-              The Verge a Wired.<br>
-              Pokud nechcete dostavat tento email, odhlaste se u administratora.
+              The Verge a Wired.
             </td>
           </tr>
 
         </table>
 
         <!--[if mso]>
-        </td></tr>
-        </table>
+        </td></tr></table>
         <![endif]-->
 
       </td>

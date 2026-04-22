@@ -14,9 +14,8 @@ from google.genai import types
 
 # Modely v pořadí preference — při přetížení nebo nedostupnosti přechází na další
 MODELS = [
-    "gemini-2.5-flash",      # primární (nejkvalitnější)
-    "gemini-2.0-flash",      # stabilní záloha
-    "gemini-2.0-flash-lite", # odlehčená záloha
+    "gemini-2.5-flash",  # primární (nejkvalitnější)
+    "gemini-2.5-pro",    # záloha pro případ přetížení flash
 ]
 
 # Počet pokusů na každý model při dočasné chybě
@@ -100,7 +99,7 @@ def call_gemini(client, model: str, user_prompt: str) -> str:
         config=types.GenerateContentConfig(
             system_instruction=SYSTEM_PROMPT,
             temperature=0.3,
-            max_output_tokens=4096,
+            max_output_tokens=8192,
         ),
     )
     return response.text.strip()
