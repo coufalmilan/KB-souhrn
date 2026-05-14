@@ -8,16 +8,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #f5f4fa;
-      --surface: #ffffff;
-      --border:  #e2e0ea;
-      --text:    #1a1d23;
-      --muted:   #6b7280;
-      --accent:  #7c3aed;
-      --accent-h:#6d28d9;
-      --radius:  10px;
-      --shadow:  0 2px 8px rgba(0,0,0,.08);
-      --font:    system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --bg:        #f5f4fa;
+      --surface:   #ffffff;
+      --border:    #e2e0ea;
+      --text:      #1a1d23;
+      --muted:     #6b7280;
+      --accent:    #7c3aed;
+      --accent-h:  #6d28d9;
+      --radius:    10px;
+      --shadow:    0 2px 8px rgba(0,0,0,.08);
+      --font:      system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -33,76 +33,99 @@
       }
     }
 
+    html {
+      /* plynulá velikost fontu: 14px na 320px šířce, 16px na 960px+ */
+      font-size: clamp(14px, 1.5vw + 9.3px, 16px);
+    }
+
     body {
       font-family: var(--font);
       background: var(--bg);
       color: var(--text);
       line-height: 1.65;
-      font-size: 16px;
+      min-width: 0;
     }
 
-    .page-wrap {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 0 1rem 3rem;
-    }
-
+    /* ── HEADER ───────────────────────────────────────── */
     header {
       background: var(--accent);
       color: #fff;
-      padding: 1.2rem 1rem;
-      margin-bottom: 2rem;
+      padding: clamp(.9rem, 3vw, 1.4rem) clamp(.75rem, 5vw, 1.5rem);
+      margin-bottom: clamp(1.25rem, 4vw, 2rem);
     }
     header .inner {
       max-width: 860px;
       margin: 0 auto;
       display: flex;
-      align-items: center;
-      gap: 1rem;
+      align-items: flex-start;
+      gap: clamp(.5rem, 2vw, 1rem);
       flex-wrap: wrap;
+      min-width: 0;
     }
+    header .header-text { min-width: 0; }
     header .back-link {
+      display: inline-block;
       color: rgba(255,255,255,.85);
-      font-size: .9rem;
+      font-size: clamp(.78rem, 2vw, .9rem);
       text-decoration: none;
+      margin-bottom: .35rem;
     }
     header .back-link:hover { color: #fff; text-decoration: underline; }
-    header h1 { font-size: 1.3rem; font-weight: 700; }
+    header h1 {
+      font-size: clamp(1rem, 3.5vw, 1.3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    /* ── OBSAH ────────────────────────────────────────── */
+    .page-wrap {
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 clamp(.75rem, 5vw, 1.5rem) clamp(2rem, 5vw, 3rem);
+    }
 
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 1.5rem 1.75rem;
-      margin-bottom: 1.5rem;
+      padding: clamp(.9rem, 3.5vw, 1.75rem) clamp(.9rem, 4vw, 1.75rem);
+      margin-bottom: clamp(1rem, 3vw, 1.5rem);
+      min-width: 0;
     }
     .card-title {
-      font-size: 1.05rem;
+      font-size: clamp(.95rem, 2.5vw, 1.05rem);
       font-weight: 700;
-      margin-bottom: 1rem;
+      margin-bottom: clamp(.75rem, 2vw, 1rem);
       border-bottom: 2px solid var(--border);
       padding-bottom: .5rem;
     }
 
+    /* ── OBSAH DIGESTU ────────────────────────────────── */
+    .digest-content { min-width: 0; }
     .digest-content h2.digest-h2 {
-      font-size: 1.05rem;
+      font-size: clamp(.95rem, 2.5vw, 1.05rem);
       font-weight: 700;
-      margin: 1.4rem 0 .6rem;
-      padding: .35rem .75rem;
+      margin: clamp(1rem, 3vw, 1.4rem) 0 .6rem;
+      padding: .35rem clamp(.5rem, 2vw, .75rem);
       border-left: 4px solid var(--accent);
       background: color-mix(in srgb, var(--accent) 8%, transparent);
       border-radius: 0 var(--radius) var(--radius) 0;
     }
     .digest-content h3.digest-h3 {
-      font-size: .95rem;
+      font-size: clamp(.88rem, 2vw, .95rem);
       font-weight: 600;
       margin: 1rem 0 .4rem;
       color: var(--muted);
     }
     .digest-content p {
       margin-bottom: .75rem;
-      font-size: .95rem;
+      font-size: clamp(.88rem, 2vw, .95rem);
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .digest-content ul {
       list-style: none;
@@ -110,36 +133,44 @@
       margin-bottom: .75rem;
     }
     .digest-content ul li {
-      font-size: .92rem;
-      padding: .55rem .75rem .55rem 1rem;
+      font-size: clamp(.85rem, 2vw, .92rem);
+      padding: clamp(.4rem, 1.5vw, .55rem) clamp(.5rem, 2vw, .75rem)
+               clamp(.4rem, 1.5vw, .55rem) clamp(.6rem, 2.5vw, 1rem);
       margin-bottom: .4rem;
       border-left: 3px solid var(--border);
       background: var(--bg);
       border-radius: 0 6px 6px 0;
-      line-height: 1.5;
+      line-height: 1.55;
+      min-width: 0;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .digest-content ul li:hover { border-left-color: var(--accent); }
     .digest-content a {
       color: var(--accent);
       text-decoration: none;
-      word-break: break-all;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .digest-content a:hover { text-decoration: underline; color: var(--accent-h); }
     .digest-content em { color: var(--muted); }
     .digest-content strong { font-weight: 700; }
 
+    /* ── FOOTER ───────────────────────────────────────── */
     footer {
       text-align: center;
-      font-size: .8rem;
+      font-size: clamp(.72rem, 1.8vw, .8rem);
       color: var(--muted);
-      margin-top: 2rem;
-      padding-top: 1rem;
+      margin-top: clamp(1.5rem, 4vw, 2rem);
+      padding: 1rem clamp(.75rem, 5vw, 1.5rem) 2rem;
       border-top: 1px solid var(--border);
     }
+    footer a { color: var(--accent); }
 
-    @media (max-width: 600px) {
-      .card { padding: 1.1rem; }
-      header h1 { font-size: 1.1rem; }
+    /* ── BREAKPOINTY ──────────────────────────────────── */
+    @media (max-width: 480px) {
+      header .inner { align-items: flex-start; }
+      .digest-content h2.digest-h2 { border-radius: 0 6px 6px 0; }
     }
   </style>
 </head>
@@ -147,7 +178,7 @@
 
 <header>
   <div class="inner">
-    <div>
+    <div class="header-text">
       <a class="back-link" href="../index.html">← Zpět na dnešní AI digest</a>
       <h1>🤖 AI digest — 14. května 2026</h1>
     </div>
@@ -158,50 +189,43 @@
   <div class="card">
     <div class="card-title">Přehled za 14. května 2026</div>
     <div class="digest-content">
-      <p>SUBJECT: AI útočí na soukromí: deepfakes a čísla venku</p>
-
-<h2 class="digest-h2">🤖 Modely & Výzkum</h2>
-<ul>
-  <li>  <strong>Anthropic o proaktivní AI</strong> — Cat Wu z Anthropicu předpovídá budoucnost, kde AI bude proaktivně předvídat naše potřeby, ještě než si je sami uvědomíme. To naznačuje posun od reaktivních asistentů k inteligentním systémům, které aktivně organizují náš digitální život a nabízejí řešení předem. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/13/anthropics-cat-wu-says-that-in-the-future-ai-will-anticipate-your-needs-before-you-know-what-they-are/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/13/anthropics-cat-wu-says-that-in-the-future-ai-will-anticipate-your-needs-before-you-know-what-they-are/</a></li>
-  <li>  <strong>Adaption představuje AutoScientist</strong> — Adaption vyvíjí nástroj AutoScientist, který umožňuje AI modelům trénovat se a rychle se adaptovat na specifické schopnosti prostřednictvím automatizovaného jemného ladění. Cílem je výrazně urychlit a zefektivnit proces vývoje a nasazení AI modelů. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/13/adaption-aims-big-with-autoscientist-an-ai-tool-that-helps-models-train-themselves/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/13/adaption-aims-big-with-autoscientist-an-ai-tool-that-helps-models-train-themselves/</a></li>
-  <li>  <strong>OpenAI buduje bezpečný sandbox pro Codex na Windows</strong> — OpenAI detailně popisuje, jak vytvořila bezpečné prostředí sandboxu pro svůj kódovací model Codex na Windows. To umožňuje bezpečné a efektivní fungování kódovacích agentů s kontrolovaným přístupem k souborům a omezením sítě, což je klíčové pro důvěryhodné nasazení AI v citlivých prostředích. [Zdroj: OpenAI Blog] URL: <a href="https://openai.com/index/building-codex-windows-sandbox" target="_blank" rel="noopener">https://openai.com/index/building-codex-windows-sandbox</a></li>
-</ul>
+      <p>SUBJECT: Cerebras IPO: Miliardy pro AI, trh ožívá</p>
 
 <h2 class="digest-h2">🏢 Byznys & Průmysl</h2>
 <ul>
-  <li>  <strong>Anthropic překonává OpenAI v počtu firemních klientů</strong> — Podle dat fintech firmy Ramp má Anthropic nyní více firemních zákazníků než OpenAI, což signalizuje posun v AI platformových válkách a rostoucí zaměření Anthropicu na malé a střední podniky. Tento trend ukazuje na diverzifikaci trhu a silnou konkurenci v oblasti AI služeb. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/13/anthropic-now-has-more-business-customers-than-openai-according-to-ramp-data/</a></li>
-  <li>  <strong>Notion se mění na hub pro AI agenty</strong> — Notion spustil novou vývojářskou platformu, která týmům umožňuje integrovat AI agenty, externí datové zdroje a vlastní kód přímo do jejich pracovního prostoru. Tím se Notion posouvá hlouběji do oblasti agentního produktivního softwaru a nabízí komplexnější řešení pro automatizaci úkolů. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/13/notion-just-turned-its-workspace-into-a-hub-for-ai-agents/</a></li>
-  <li>  <strong>Amazon spouští AI nákupního asistenta</strong> — Amazon představil nového AI nákupního asistenta pro vyhledávací lištu, poháněného technologií Alexa+. Asistent nabízí personalizovaná doporučení a automatizované nákupní funkce napříč mobilními zařízeními, desktopy a chytrými displeji Echo Show, což má zjednodušit a zefektivnit online nakupování. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/13/amazon-launches-an-ai-shopping-assistant-for-the-search-bar-powered-by-alexa/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/13/amazon-launches-an-ai-shopping-assistant-for-the-search-bar-powered-by-alexa/</a></li>
-  <li>  <strong>Clio dosahuje milníku 500 milionů USD ARR</strong> — Startup Clio, zaměřený na právní technologie, zaznamenal obrovskou adopci zákazníky a dosáhl ročního opakovaného příjmu (ARR) 500 milionů dolarů. Tento úspěch podtrhuje rostoucí význam a efektivitu AI řešení v právním sektoru, kde AI pomáhá zefektivnit procesy a zvýšit produktivitu. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/13/clios-500m-milestone-arrives-just-as-anthropic-ups-the-ante/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/13/clios-500m-milestone-arrives-just-as-anthropic-ups-the-ante/</a></li>
+  <li>  <strong>Cerebras IPO startuje rok 2026</strong> — Společnost Cerebras, známá svými AI čipy, úspěšně vstoupila na burzu s valuací 5,5 miliardy dolarů a následným nárůstem akcií o 108 %. Tento krok signalizuje silný začátek IPO sezóny 2026 a ukazuje na pokračující důvěru investorů v AI hardware a jeho potenciál. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/14/cerebras-raises-5-5b-kicking-off-2026s-ipo-season-with-a-bang/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/14/cerebras-raises-5-5b-kicking-off-2026s-ipo-season-with-a-bang/</a></li>
+  <li>  <strong>Cisco propouští a investuje do AI</strong> — Technologický gigant Cisco oznámil propuštění téměř 4 000 zaměstnanců, aby mohl přesunout investice do oblasti umělé inteligence. Navzdory rekordním čtvrtletním příjmům se firma strategicky zaměřuje na AI jako klíčovou oblast budoucího růstu, což ukazuje na transformaci pracovního trhu. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/14/cisco-cuts-nearly-4000-jobs-to-spend-more-on-ai-reports-record-quarterly-revenue/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/14/cisco-cuts-nearly-4000-jobs-to-spend-more-on-ai-reports-record-quarterly-revenue/</a></li>
+  <li>  <strong>Wirestock získává 23 milionů dolarů pro AI data</strong> — Společnost Wirestock, která se v roce 2023 přeorientovala na poskytování multimodálních dat pro AI laboratoře, získala 23 milionů dolarů. Tato investice podtrhuje rostoucí poptávku po kvalitních a rozmanitých datových sadách, které jsou klíčové pro trénování pokročilých AI modelů. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/14/wirestock-raises-23m-to-supply-multi-modal-data-to-ai-labs/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/14/wirestock-raises-23m-to-supply-multi-modal-data-to-ai-labs/</a></li>
+  <li>  <strong>Khosla Ventures sází na autonomní AI účetnictví</strong> — Ian Crosby, zakladatel neúspěšného startupu Bench, získal 10 milionů dolarů od Khosla Ventures na svůj nový projekt Synthetic. Cílem je vybudovat plně autonomní AI účetní službu pro startupy, což ukazuje na pokračující důvěru v disruptivní potenciál AI i po předchozích neúspěších. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/14/khosla-ventures-is-betting-10m-on-ian-crosby-whose-last-startup-bench-imploded/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/14/khosla-ventures-is-betting-10m-on-ian-crosby-whose-last-startup-bench-imploded/</a></li>
 </ul>
 
 <h2 class="digest-h2">🇪🇺 Regulace & Etika</h2>
 <ul>
-  <li>  <strong>Deepfake pornografie zneužívá identitu</strong> — Případy, kdy jsou fotografie lidí zneužity k tvorbě necenzurovaných deepfake videí, ukazují na vážné etické a právní problémy s AI. Oběti čelí obtížím při odstraňování takového obsahu a ochraně své pověsti, což zdůrazňuje naléhavou potřebu účinné regulace a nástrojů pro ochranu soukromí. [Zdroj: MIT Technology Review] URL: <a href="https://www.technologyreview.com/2026/05/14/1137161/ai-porn-nonconsensual-deepfakes-takedown-piracy-copyright/" target="_blank" rel="noopener">https://www.technologyreview.com/2026/05/14/1137161/ai-porn-nonconsensual-deepfakes-takedown-piracy-copyright/</a></li>
-  <li>  <strong>AI chatboti odhalují soukromá telefonní čísla</strong> — Uživatelé hlásí, že AI chatboti Google zveřejňují jejich osobní kontaktní informace, včetně telefonních čísel, a neexistuje snadný způsob, jak tomu zabránit. Tento incident vyvolává vážné obavy o ochranu dat a soukromí v éře generativní AI. [Zdroj: MIT Technology Review] URL: <a href="https://www.technologyreview.com/2026/05/13/1137203/ai-chatbots-are-giving-out-people-s-real-phone-numbers/" target="_blank" rel="noopener">https://www.technologyreview.com/2026/05/13/1137203/ai-chatbots-are-giving-out-people-s-real-phone-numbers/</a></li>
-  <li>  <strong>AI podvody na univerzitách</strong> — Na elitních školách, jako je Princeton, je rozšířené podvádění s pomocí AI, přičemž studenti se navzájem neudávají. To narušuje tradiční systémy čestného kodexu a vyžaduje nové přístupy k akademické integritě a hodnocení v éře snadno dostupné AI. [Zdroj: Ars Technica AI] URL: <a href="https://arstechnica.com/tech-policy/2026/05/ai-driven-cheating-widespread-even-at-elite-schools-like-princeton/" target="_blank" rel="noopener">https://arstechnica.com/tech-policy/2026/05/ai-driven-cheating-widespread-even-at-elite-schools-like-princeton/</a></li>
-  <li>  <strong>Ekologické obavy kolem xAI Elona Muska</strong> — Datové centrum xAI Elona Muska v Mississippi provozuje téměř 50 plynových turbín bez řádné kontroly, což vedlo k soudnímu sporu. Tento případ poukazuje na rostoucí environmentální dopady a regulační výzvy spojené s masivním rozvojem AI infrastruktury a energetickou náročností AI. [Zdroj: TechCrunch AI] URL: <a href="https://techcrunch.com/2026/05/13/musks-xai-is-running-nearly-50-gas-turbines-unchecked-at-its-mississippi-data-center/" target="_blank" rel="noopener">https://techcrunch.com/2026/05/13/musks-xai-is-running-nearly-50-gas-turbines-unchecked-at-its-mississippi-data-center/</a></li>
+  <li>  <strong>AI a datová suverenita v autonomních systémech</strong> — S rostoucím nasazováním generativní AI do podnikových aplikací se objevuje naléhavá potřeba řešit otázky datové suverenity a kontroly nad proprietárními daty. Firmy se musí zamyslet nad tím, jak zajistit bezpečnost a vlastnictví dat, která jsou krmena do externích AI systémů, aby si udržely kontrolu nad svými klíčovými aktivy. [Zdroj: MIT Technology Review] URL: <a href="https://www.technologyreview.com/2026/05/14/1137168/establishing-ai-and-data-sovereignty-in-the-age-of-autonomous-systems/" target="_blank" rel="noopener">https://www.technologyreview.com/2026/05/14/1137168/establishing-ai-and-data-sovereignty-in-the-age-of-autonomous-systems/</a></li>
+  <li>  <strong>Rizika deepfake pornografie a úniku dat</strong> — Zpráva upozorňuje na znepokojivé případy zneužívání AI k vytváření deepfake pornografie a na riziko, že AI modely mohou nechtěně odhalit soukromá telefonní čísla. Tyto incidenty zdůrazňují naléhavost řešení etických a bezpečnostních otázek spojených s AI, které mají přímý dopad na soukromí a bezpečnost jednotlivců. [Zdroj: MIT Technology Review] URL: <a href="https://www.technologyreview.com/2026/05/14/1137257/the-download-deepfake-porn-bodies-ai-exposing-phone-numbers/" target="_blank" rel="noopener">https://www.technologyreview.com/2026/05/14/1137257/the-download-deepfake-porn-bodies-ai-exposing-phone-numbers/</a></li>
+  <li>  <strong>Připravenost dat pro agentní AI ve finančních službách</strong> — Finanční sektor, silně regulovaný a dynamický, čelí jedinečným výzvám při implementaci agentní AI. Klíčová je připravenost dat, která musí splňovat přísné požadavky na přesnost, bezpečnost a soulad s regulacemi, aby AI systémy mohly fungovat spolehlivě a eticky. [Zdroj: MIT Technology Review] URL: <a href="https://www.technologyreview.com/2026/05/14/1137034/data-readiness-for-agentic-ai-in-financial-services/" target="_blank" rel="noopener">https://www.technologyreview.com/2026/05/14/1137034/data-readiness-for-agentic-ai-in-financial-services/</a></li>
 </ul>
 
 <h2 class="digest-h2">💡 Příběh / Případ z praxe</h2>
-<p><strong>Deepfake pornografie a zneužití identity</strong> — Jennifer, výzkumnice pro neziskovou organizaci, zjistila, že její profesionální fotografie byla zneužita k tvorbě deepfake pornografie. Tento incident zdůrazňuje, jak snadno může být AI zneužita k poškození pověsti a narušení soukromí, a jak obtížné je takový obsah odstranit z internetu. Je to varování pro každého, kdo sdílí své fotografie online, aby si byl vědom potenciálních rizik a zranitelnosti vůči zneužití AI. [Zdroj: MIT Technology Review] URL: <a href="https://www.technologyreview.com/2026/05/14/1137161/ai-porn-nonconsensual-deepfakes-takedown-piracy-copyright/" target="_blank" rel="noopener">https://www.technologyreview.com/2026/05/14/1137161/ai-porn-nonconsensual-deepfakes-takedown-piracy-copyright/</a></p>
+<p><strong>AI notetaker v ordinacích si vymýšlí</strong> — Audit v Ontariu odhalil, že AI nástroje pro psaní poznámek v lékařských ordinacích si často vymýšlejí informace, včetně smyšlených doporučení na terapie nebo chybných předpisů. To má přímý dopad na bezpečnost pacientů a důvěryhodnost zdravotnických systémů. Z toho plyne poučení, že i zdánlivě neškodné AI nástroje vyžadují pečlivou kontrolu a lidský dohled, zejména v kritických odvětvích, kde chyba může mít fatální následky. [Zdroj: Ars Technica AI] URL: <a href="https://arstechnica.com/health/2026/05/your-doctors-ai-notetaker-may-be-making-things-up-ontario-audit-finds/" target="_blank" rel="noopener">https://arstechnica.com/health/2026/05/your-doctors-ai-notetaker-may-be-making-things-up-ontario-audit-finds/</a></p>
 
 <h2 class="digest-h2">🛠️ Praktický tip</h2>
-<p><strong>Co udělat:</strong> Pravidelně kontrolujte, zda vaše osobní údaje nebo vizuální identita nejsou zneužívány AI nástroji.</p>
-<p><strong>Proč:</strong> S rostoucí schopností AI generovat realistický obsah a shromažďovat data je riziko zneužití (např. deepfakes, úniky kontaktů) stále vyšší. Aktivní kontrola může pomoci včas odhalit a řešit potenciální hrozby.</p>
-<p><strong>Jak:</strong> Použijte nástroje pro reverzní vyhledávání obrázků (např. Google Images, TinEye) pro své fotografie a pravidelně vyhledávejte své jméno a kontaktní údaje online, abyste identifikovali potenciální úniky. Zvažte také nastavení upozornění Google Alerts pro své jméno, abyste byli informováni o nových zmínkách.</p>
+<p><strong>Co udělat:</strong> Důkladně ověřujte výstupy AI nástrojů, zejména v kritických oblastech.</p>
+<p><strong>Proč:</strong> Případ s AI notetakerem v ordinacích ukazuje, že AI může generovat nepřesné nebo zcela smyšlené informace, což může mít vážné důsledky pro bezpečnost, finance nebo reputaci.</p>
+<p><strong>Jak:</strong> Implementujte procesy dvojité kontroly pro AI generovaný obsah, zejména tam, kde jsou ve hře finance, zdraví, právní aspekty nebo citlivá data. Využijte lidský dohled pro finální schválení a kontrolu faktické správnosti.</p>
 
 <h2 class="digest-h2">📋 Shrnutí a výzva k akci</h2>
-<p>Dnešní zprávy ukazují na dvojí tvář AI: zatímco firmy jako Anthropic a Notion posouvají hranice produktivity a byznysu, stoupají i rizika spojená s ochranou soukromí a etickým zneužitím, od deepfakes po úniky osobních dat. Je klíčové být si vědom těchto hrozeb a aktivně se bránit.</p>
-<p>👉 <strong>Doporučená akce:</strong> Zkontrolujte nastavení soukromí u všech AI nástrojů, které používáte, a ověřte, jak nakládají s vašimi daty.</p>
+<p>Dnešní zprávy ukazují na pokračující investiční boom v AI a strategické přesuny firem směrem k této technologii. Zároveň však zdůrazňují kritickou potřebu řešit etické otázky, datovou suverenitu a spolehlivost AI systémů, zejména v citlivých odvětvích jako je zdravotnictví nebo finance. Pro české profesionály je klíčové sledovat jak byznysové příležitosti, tak i rizika spojená s nasazováním AI.</p>
+
+<p>👉 <strong>Doporučená akce:</strong> Zhodnoťte, jaké AI nástroje používáte ve své firmě a zda máte zavedené mechanismy pro ověřování jejich výstupů, obzvláště pokud pracují s citlivými daty nebo v kritických procesech.</p>
 
     </div>
   </div>
 </div>
 
 <footer>
-  Generováno 2026-05-14 09:40 UTC &nbsp;·&nbsp;
-  <a href="../index.html" style="color: var(--accent)">Zpět na hlavní stránku</a>
+  Generováno 2026-05-14 18:43 UTC &nbsp;·&nbsp;
+  <a href="../index.html">Zpět na hlavní stránku</a>
 </footer>
 
 </body>
