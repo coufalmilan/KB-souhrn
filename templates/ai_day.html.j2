@@ -8,16 +8,16 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:      #f5f4fa;
-      --surface: #ffffff;
-      --border:  #e2e0ea;
-      --text:    #1a1d23;
-      --muted:   #6b7280;
-      --accent:  #7c3aed;
-      --accent-h:#6d28d9;
-      --radius:  10px;
-      --shadow:  0 2px 8px rgba(0,0,0,.08);
-      --font:    system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --bg:        #f5f4fa;
+      --surface:   #ffffff;
+      --border:    #e2e0ea;
+      --text:      #1a1d23;
+      --muted:     #6b7280;
+      --accent:    #7c3aed;
+      --accent-h:  #6d28d9;
+      --radius:    10px;
+      --shadow:    0 2px 8px rgba(0,0,0,.08);
+      --font:      system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     }
 
     @media (prefers-color-scheme: dark) {
@@ -33,76 +33,99 @@
       }
     }
 
+    html {
+      /* plynulá velikost fontu: 14px na 320px šířce, 16px na 960px+ */
+      font-size: clamp(14px, 1.5vw + 9.3px, 16px);
+    }
+
     body {
       font-family: var(--font);
       background: var(--bg);
       color: var(--text);
       line-height: 1.65;
-      font-size: 16px;
+      min-width: 0;
     }
 
-    .page-wrap {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 0 1rem 3rem;
-    }
-
+    /* ── HEADER ───────────────────────────────────────── */
     header {
       background: var(--accent);
       color: #fff;
-      padding: 1.2rem 1rem;
-      margin-bottom: 2rem;
+      padding: clamp(.9rem, 3vw, 1.4rem) clamp(.75rem, 5vw, 1.5rem);
+      margin-bottom: clamp(1.25rem, 4vw, 2rem);
     }
     header .inner {
       max-width: 860px;
       margin: 0 auto;
       display: flex;
-      align-items: center;
-      gap: 1rem;
+      align-items: flex-start;
+      gap: clamp(.5rem, 2vw, 1rem);
       flex-wrap: wrap;
+      min-width: 0;
     }
+    header .header-text { min-width: 0; }
     header .back-link {
+      display: inline-block;
       color: rgba(255,255,255,.85);
-      font-size: .9rem;
+      font-size: clamp(.78rem, 2vw, .9rem);
       text-decoration: none;
+      margin-bottom: .35rem;
     }
     header .back-link:hover { color: #fff; text-decoration: underline; }
-    header h1 { font-size: 1.3rem; font-weight: 700; }
+    header h1 {
+      font-size: clamp(1rem, 3.5vw, 1.3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+
+    /* ── OBSAH ────────────────────────────────────────── */
+    .page-wrap {
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 clamp(.75rem, 5vw, 1.5rem) clamp(2rem, 5vw, 3rem);
+    }
 
     .card {
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 1.5rem 1.75rem;
-      margin-bottom: 1.5rem;
+      padding: clamp(.9rem, 3.5vw, 1.75rem) clamp(.9rem, 4vw, 1.75rem);
+      margin-bottom: clamp(1rem, 3vw, 1.5rem);
+      min-width: 0;
     }
     .card-title {
-      font-size: 1.05rem;
+      font-size: clamp(.95rem, 2.5vw, 1.05rem);
       font-weight: 700;
-      margin-bottom: 1rem;
+      margin-bottom: clamp(.75rem, 2vw, 1rem);
       border-bottom: 2px solid var(--border);
       padding-bottom: .5rem;
     }
 
+    /* ── OBSAH DIGESTU ────────────────────────────────── */
+    .digest-content { min-width: 0; }
     .digest-content h2.digest-h2 {
-      font-size: 1.05rem;
+      font-size: clamp(.95rem, 2.5vw, 1.05rem);
       font-weight: 700;
-      margin: 1.4rem 0 .6rem;
-      padding: .35rem .75rem;
+      margin: clamp(1rem, 3vw, 1.4rem) 0 .6rem;
+      padding: .35rem clamp(.5rem, 2vw, .75rem);
       border-left: 4px solid var(--accent);
       background: color-mix(in srgb, var(--accent) 8%, transparent);
       border-radius: 0 var(--radius) var(--radius) 0;
     }
     .digest-content h3.digest-h3 {
-      font-size: .95rem;
+      font-size: clamp(.88rem, 2vw, .95rem);
       font-weight: 600;
       margin: 1rem 0 .4rem;
       color: var(--muted);
     }
     .digest-content p {
       margin-bottom: .75rem;
-      font-size: .95rem;
+      font-size: clamp(.88rem, 2vw, .95rem);
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .digest-content ul {
       list-style: none;
@@ -110,36 +133,44 @@
       margin-bottom: .75rem;
     }
     .digest-content ul li {
-      font-size: .92rem;
-      padding: .55rem .75rem .55rem 1rem;
+      font-size: clamp(.85rem, 2vw, .92rem);
+      padding: clamp(.4rem, 1.5vw, .55rem) clamp(.5rem, 2vw, .75rem)
+               clamp(.4rem, 1.5vw, .55rem) clamp(.6rem, 2.5vw, 1rem);
       margin-bottom: .4rem;
       border-left: 3px solid var(--border);
       background: var(--bg);
       border-radius: 0 6px 6px 0;
-      line-height: 1.5;
+      line-height: 1.55;
+      min-width: 0;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .digest-content ul li:hover { border-left-color: var(--accent); }
     .digest-content a {
       color: var(--accent);
       text-decoration: none;
-      word-break: break-all;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .digest-content a:hover { text-decoration: underline; color: var(--accent-h); }
     .digest-content em { color: var(--muted); }
     .digest-content strong { font-weight: 700; }
 
+    /* ── FOOTER ───────────────────────────────────────── */
     footer {
       text-align: center;
-      font-size: .8rem;
+      font-size: clamp(.72rem, 1.8vw, .8rem);
       color: var(--muted);
-      margin-top: 2rem;
-      padding-top: 1rem;
+      margin-top: clamp(1.5rem, 4vw, 2rem);
+      padding: 1rem clamp(.75rem, 5vw, 1.5rem) 2rem;
       border-top: 1px solid var(--border);
     }
+    footer a { color: var(--accent); }
 
-    @media (max-width: 600px) {
-      .card { padding: 1.1rem; }
-      header h1 { font-size: 1.1rem; }
+    /* ── BREAKPOINTY ──────────────────────────────────── */
+    @media (max-width: 480px) {
+      header .inner { align-items: flex-start; }
+      .digest-content h2.digest-h2 { border-radius: 0 6px 6px 0; }
     }
   </style>
 </head>
@@ -147,7 +178,7 @@
 
 <header>
   <div class="inner">
-    <div>
+    <div class="header-text">
       <a class="back-link" href="../index.html">← Zpět na dnešní AI digest</a>
       <h1>🤖 AI digest — {{ date_cz }}</h1>
     </div>
@@ -165,7 +196,7 @@
 
 <footer>
   Generováno {{ generated }} &nbsp;·&nbsp;
-  <a href="../index.html" style="color: var(--accent)">Zpět na hlavní stránku</a>
+  <a href="../index.html">Zpět na hlavní stránku</a>
 </footer>
 
 </body>

@@ -33,46 +33,59 @@
       }
     }
 
+    html {
+      /* plynulá velikost fontu: 14px na 320px šířce, 16px na 960px+ */
+      font-size: clamp(14px, 1.5vw + 9.3px, 16px);
+    }
+
     body {
       font-family: var(--font);
       background: var(--bg);
       color: var(--text);
       line-height: 1.65;
-      font-size: 16px;
+      min-width: 0;
     }
 
-    .page-wrap {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 0 1rem 3rem;
-    }
-
+    /* ── HEADER ───────────────────────────────────────── */
     header {
       background: var(--accent);
       color: #fff;
-      padding: 1.4rem 1rem;
-      margin-bottom: 2rem;
+      padding: clamp(.9rem, 3vw, 1.4rem) clamp(.75rem, 5vw, 1.5rem);
+      margin-bottom: clamp(1.25rem, 4vw, 2rem);
     }
     header .inner {
       max-width: 860px;
       margin: 0 auto;
       display: flex;
       align-items: center;
-      gap: 1rem;
+      gap: clamp(.5rem, 2vw, 1rem);
       flex-wrap: wrap;
+      min-width: 0;
     }
     header .icon {
-      font-size: 2rem;
+      font-size: clamp(1.5rem, 4vw, 2rem);
       line-height: 1;
+      flex-shrink: 0;
     }
+    header .header-text { min-width: 0; }
     header h1 {
-      font-size: 1.5rem;
+      font-size: clamp(1.1rem, 3.5vw, 1.5rem);
       font-weight: 700;
-      letter-spacing: -.5px;
+      letter-spacing: -.4px;
+      line-height: 1.2;
     }
     header .subtitle {
-      font-size: .9rem;
+      font-size: clamp(.78rem, 2vw, .9rem);
       opacity: .85;
+      margin-top: .15rem;
+    }
+
+    /* ── OBSAH ────────────────────────────────────────── */
+    .page-wrap {
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 clamp(.75rem, 5vw, 1.5rem) clamp(2rem, 5vw, 3rem);
     }
 
     .date-badge {
@@ -81,11 +94,11 @@
       gap: .4rem;
       background: var(--accent);
       color: #fff;
-      font-size: .8rem;
+      font-size: clamp(.72rem, 1.8vw, .8rem);
       font-weight: 600;
       padding: .25rem .75rem;
       border-radius: 99px;
-      margin-bottom: 1.2rem;
+      margin-bottom: clamp(.9rem, 3vw, 1.2rem);
       letter-spacing: .02em;
     }
 
@@ -94,37 +107,42 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow);
-      padding: 1.5rem 1.75rem;
-      margin-bottom: 1.5rem;
+      padding: clamp(.9rem, 3.5vw, 1.75rem) clamp(.9rem, 4vw, 1.75rem);
+      margin-bottom: clamp(1rem, 3vw, 1.5rem);
+      min-width: 0;
     }
     .card-title {
-      font-size: 1.1rem;
+      font-size: clamp(.95rem, 2.5vw, 1.1rem);
       font-weight: 700;
-      margin-bottom: 1rem;
+      margin-bottom: clamp(.75rem, 2vw, 1rem);
       color: var(--text);
       border-bottom: 2px solid var(--border);
       padding-bottom: .5rem;
     }
 
+    /* ── OBSAH DIGESTU ────────────────────────────────── */
+    .digest-content { min-width: 0; }
     .digest-content h2.digest-h2 {
-      font-size: 1.05rem;
+      font-size: clamp(.95rem, 2.5vw, 1.05rem);
       font-weight: 700;
-      margin: 1.4rem 0 .6rem;
-      padding: .35rem .75rem;
+      margin: clamp(1rem, 3vw, 1.4rem) 0 .6rem;
+      padding: .35rem clamp(.5rem, 2vw, .75rem);
       border-left: 4px solid var(--accent);
       background: color-mix(in srgb, var(--accent) 8%, transparent);
       border-radius: 0 var(--radius) var(--radius) 0;
       color: var(--text);
     }
     .digest-content h3.digest-h3 {
-      font-size: .95rem;
+      font-size: clamp(.88rem, 2vw, .95rem);
       font-weight: 600;
       margin: 1rem 0 .4rem;
       color: var(--muted);
     }
     .digest-content p {
       margin-bottom: .75rem;
-      font-size: .95rem;
+      font-size: clamp(.88rem, 2vw, .95rem);
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .digest-content ul {
       list-style: none;
@@ -132,41 +150,48 @@
       margin-bottom: .75rem;
     }
     .digest-content ul li {
-      font-size: .92rem;
-      padding: .55rem .75rem .55rem 1rem;
+      font-size: clamp(.85rem, 2vw, .92rem);
+      padding: clamp(.4rem, 1.5vw, .55rem) clamp(.5rem, 2vw, .75rem)
+               clamp(.4rem, 1.5vw, .55rem) clamp(.6rem, 2.5vw, 1rem);
       margin-bottom: .4rem;
       border-left: 3px solid var(--border);
       background: var(--bg);
       border-radius: 0 6px 6px 0;
-      line-height: 1.5;
+      line-height: 1.55;
+      min-width: 0;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
-    .digest-content ul li:hover {
-      border-left-color: var(--accent);
-    }
+    .digest-content ul li:hover { border-left-color: var(--accent); }
     .digest-content a {
       color: var(--accent);
       text-decoration: none;
-      word-break: break-all;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .digest-content a:hover { text-decoration: underline; color: var(--accent-h); }
     .digest-content em { color: var(--muted); font-style: italic; }
     .digest-content strong { font-weight: 700; }
 
+    /* ── ARCHÍV ───────────────────────────────────────── */
     .archive-list {
       list-style: none;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: .5rem;
+      grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 25vw, 220px), 1fr));
+      gap: clamp(.35rem, 1.5vw, .5rem);
     }
     .archive-list li a {
       display: block;
-      padding: .5rem .75rem;
+      padding: clamp(.4rem, 1.5vw, .5rem) clamp(.5rem, 2vw, .75rem);
       border: 1px solid var(--border);
       border-radius: 6px;
-      font-size: .88rem;
+      font-size: clamp(.8rem, 1.8vw, .88rem);
       color: var(--text);
       text-decoration: none;
       transition: border-color .15s, background .15s;
+      min-width: 0;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
     .archive-list li a:hover {
       border-color: var(--accent);
@@ -174,24 +199,38 @@
       color: var(--accent);
     }
     .archive-list li a .arc-date {
-      font-size: .78rem;
+      font-size: clamp(.72rem, 1.6vw, .78rem);
       color: var(--muted);
       display: block;
     }
 
+    /* ── FOOTER ───────────────────────────────────────── */
     footer {
       text-align: center;
-      font-size: .8rem;
+      font-size: clamp(.72rem, 1.8vw, .8rem);
       color: var(--muted);
-      margin-top: 2rem;
-      padding-top: 1rem;
+      margin-top: clamp(1.5rem, 4vw, 2rem);
+      padding: 1rem clamp(.75rem, 5vw, 1.5rem) 2rem;
       border-top: 1px solid var(--border);
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
-    @media (max-width: 600px) {
-      .card { padding: 1.1rem 1.1rem; }
-      header h1 { font-size: 1.2rem; }
+    /* ── BREAKPOINTY ──────────────────────────────────── */
+    @media (max-width: 768px) {
+      .archive-list {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      header .inner { gap: .4rem; }
       .archive-list { grid-template-columns: 1fr 1fr; }
+      .digest-content h2.digest-h2 { border-radius: 0 6px 6px 0; }
+    }
+
+    @media (max-width: 360px) {
+      .archive-list { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -200,7 +239,7 @@
 <header>
   <div class="inner">
     <div class="icon">🤖</div>
-    <div>
+    <div class="header-text">
       <h1>AI digest</h1>
       <div class="subtitle">Automatický přehled novinek ze světa umělé inteligence</div>
     </div>
