@@ -34,7 +34,6 @@
     }
 
     html {
-      /* plynulá velikost fontu: 14px na 320px šířce, 16px na 960px+ */
       font-size: clamp(14px, 1.5vw + 9.3px, 16px);
     }
 
@@ -110,6 +109,7 @@
       padding: clamp(.9rem, 3.5vw, 1.75rem) clamp(.9rem, 4vw, 1.75rem);
       margin-bottom: clamp(1rem, 3vw, 1.5rem);
       min-width: 0;
+      overflow: hidden;
     }
     .card-title {
       font-size: clamp(.95rem, 2.5vw, 1.1rem);
@@ -121,7 +121,10 @@
     }
 
     /* ── OBSAH DIGESTU ────────────────────────────────── */
-    .digest-content { min-width: 0; }
+    .digest-content {
+      min-width: 0;
+      overflow-x: hidden;
+    }
     .digest-content h2.digest-h2 {
       font-size: clamp(.95rem, 2.5vw, 1.05rem);
       font-weight: 700;
@@ -173,6 +176,43 @@
     .digest-content em { color: var(--muted); font-style: italic; }
     .digest-content strong { font-weight: 700; }
 
+    /* ── TABULKY V DIGESTU ────────────────────────────── */
+    .digest-content .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin-bottom: .75rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .digest-content table {
+      width: 100%;
+      min-width: 400px;
+      border-collapse: collapse;
+      font-size: clamp(.82rem, 1.8vw, .9rem);
+    }
+    .digest-content th,
+    .digest-content td {
+      padding: clamp(.35rem, 1.5vw, .55rem) clamp(.5rem, 2vw, .75rem);
+      border-bottom: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: break-word;
+      word-break: break-word;
+    }
+    .digest-content th:last-child,
+    .digest-content td:last-child { border-right: none; }
+    .digest-content tr:last-child td { border-bottom: none; }
+    .digest-content th {
+      background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .digest-content tr:nth-child(even) td {
+      background: color-mix(in srgb, var(--bg) 60%, var(--surface));
+    }
+
     /* ── ARCHÍV ───────────────────────────────────────── */
     .archive-list {
       list-style: none;
@@ -222,13 +262,11 @@
         grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
       }
     }
-
     @media (max-width: 480px) {
       header .inner { gap: .4rem; }
       .archive-list { grid-template-columns: 1fr 1fr; }
       .digest-content h2.digest-h2 { border-radius: 0 6px 6px 0; }
     }
-
     @media (max-width: 360px) {
       .archive-list { grid-template-columns: 1fr; }
     }
@@ -278,6 +316,17 @@
 <footer>
   Generováno {{ generated }} &nbsp;·&nbsp; Zdroje: OpenAI Blog, Google DeepMind, Hugging Face, MIT Technology Review, VentureBeat AI, TechCrunch AI, Ars Technica AI, The Verge AI, Wired AI
 </footer>
+
+<script>
+  /* Zabalí každou tabulku v digestu do scrollovatelného wrapperu */
+  document.querySelectorAll('.digest-content table').forEach(function(t) {
+    if (t.parentElement.classList.contains('table-wrap')) return;
+    var w = document.createElement('div');
+    w.className = 'table-wrap';
+    t.parentNode.insertBefore(w, t);
+    w.appendChild(t);
+  });
+</script>
 
 </body>
 </html>
