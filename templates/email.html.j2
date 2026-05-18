@@ -24,8 +24,6 @@
       line-height: 1.6;
     }
 
-    .email-body { padding: 20px 28px 16px; }
-
     /* Sekce — nadpis */
     .digest-content h2.digest-h2 {
       font-size: 10px;
@@ -60,9 +58,6 @@
       color: #374151;
       padding: 7px 0;
       border-bottom: 1px solid #f1f5f9;
-      border-left: none;
-      background: none;
-      border-radius: 0;
       line-height: 1.6;
       word-wrap: break-word;
       overflow-wrap: break-word;
@@ -84,76 +79,60 @@
     .digest-content strong { font-weight: 700; color: #111827; }
 
     @media only screen and (max-width: 480px) {
-      .email-body { padding: 16px 18px !important; }
       .email-header-td { padding: 14px 18px 12px !important; }
+      .email-body-td   { padding: 16px 18px !important; }
       .email-footer-td { padding: 10px 18px !important; }
     }
   </style>
 </head>
 <body>
+
+  <!-- Jediná tabulka, width=100%, žádný centrující wrapper -->
   <table width="100%" cellpadding="0" cellspacing="0" border="0"
-         style="background-color:#f1f5f9;">
+         style="width:100%;background:#ffffff;">
+
+    <!-- Hlavička -->
     <tr>
-      <td align="center" style="padding:16px 8px;">
-
-        <!--[if mso]>
-        <table width="600" cellpadding="0" cellspacing="0" border="0"><tr><td>
-        <![endif]-->
-
-        <table width="600" cellpadding="0" cellspacing="0" border="0"
-               style="max-width:600px;width:100%;background:#ffffff;
-                      border-radius:8px;overflow:hidden;
-                      border:1px solid #e2e8f0;">
-
-          <!-- Hlavička -->
-          <tr>
-            <td class="email-header-td"
-                style="background:#0f172a;padding:18px 28px 16px;">
-              <p style="margin:0 0 4px;font-size:10px;font-weight:600;
-                        letter-spacing:.12em;text-transform:uppercase;color:#3b82f6;">
-                &#128737;&#65039; Kybernetický digest
-              </p>
-              <p style="margin:0;font-size:20px;font-weight:700;
-                        color:#ffffff;line-height:1.2;">
-                {{ date_cz }}
-              </p>
-              {% if subject_line %}
-              <p style="margin:4px 0 0;font-size:12px;color:#94a3b8;
-                        line-height:1.4;">
-                {{ subject_line }}
-              </p>
-              {% endif %}
-            </td>
-          </tr>
-
-          <!-- Obsah -->
-          <tr>
-            <td class="email-body">
-              <div class="digest-content">
-                {{ summary | safe }}
-              </div>
-            </td>
-          </tr>
-
-          <!-- Patička -->
-          <tr>
-            <td class="email-footer-td"
-                style="background:#f8fafc;border-top:1px solid #e2e8f0;
-                       padding:10px 28px;text-align:center;
-                       font-size:11px;color:#94a3b8;line-height:1.5;">
-              Automaticky generováno pomocí Gemini AI ze zdrojů NÚKIB, CERT.CZ,
-              Krebs on Security, The Hacker News, BleepingComputer, ENISA a Schneier on Security.
-            </td>
-          </tr>
-
-        </table>
-
-        <!--[if mso]>
-        </td></tr></table>
-        <![endif]-->
-
+      <td class="email-header-td"
+          style="background:#0f172a;padding:18px 32px 16px;">
+        <p style="margin:0 0 4px;font-size:10px;font-weight:600;
+                  letter-spacing:.12em;text-transform:uppercase;color:#3b82f6;">
+          &#128737;&#65039; Kybernetický digest
+        </p>
+        <p style="margin:0;font-size:22px;font-weight:700;
+                  color:#ffffff;line-height:1.2;">
+          {{ date_cz }}
+        </p>
+        {% if subject_line %}
+        <p style="margin:6px 0 0;font-size:13px;color:#94a3b8;line-height:1.4;">
+          {{ subject_line }}
+        </p>
+        {% endif %}
       </td>
     </tr>
+
+    <!-- Obsah -->
+    <tr>
+      <td class="email-body-td"
+          style="padding:24px 32px 20px;background:#ffffff;">
+        <div class="digest-content">
+          {{ summary | safe }}
+        </div>
+      </td>
+    </tr>
+
+    <!-- Patička -->
+    <tr>
+      <td class="email-footer-td"
+          style="background:#f8fafc;border-top:1px solid #e2e8f0;
+                 padding:12px 32px;text-align:center;
+                 font-size:11px;color:#94a3b8;line-height:1.5;">
+        Automaticky generováno pomocí Gemini AI ze zdrojů NÚKIB, CERT.CZ,
+        Krebs on Security, The Hacker News, BleepingComputer, ENISA a Schneier on Security.
+      </td>
+    </tr>
+
   </table>
+
 </body>
 </html>
