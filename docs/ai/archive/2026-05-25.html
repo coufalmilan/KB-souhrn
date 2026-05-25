@@ -56,27 +56,26 @@
       max-width: 860px;
       margin: 0 auto;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: clamp(.5rem, 2vw, 1rem);
       flex-wrap: wrap;
       min-width: 0;
     }
-    header .icon {
-      font-size: clamp(1.5rem, 4vw, 2rem);
-      line-height: 1;
-      flex-shrink: 0;
-    }
     header .header-text { min-width: 0; }
-    header h1 {
-      font-size: clamp(1.1rem, 3.5vw, 1.5rem);
-      font-weight: 700;
-      letter-spacing: -.4px;
-      line-height: 1.2;
-    }
-    header .subtitle {
+    header .back-link {
+      display: inline-block;
+      color: rgba(255,255,255,.85);
       font-size: clamp(.78rem, 2vw, .9rem);
-      opacity: .85;
-      margin-top: .15rem;
+      text-decoration: none;
+      margin-bottom: .35rem;
+    }
+    header .back-link:hover { color: #fff; text-decoration: underline; }
+    header h1 {
+      font-size: clamp(1rem, 3.5vw, 1.3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     /* ── OBSAH ────────────────────────────────────────── */
@@ -85,20 +84,6 @@
       width: 100%;
       margin: 0 auto;
       padding: 0 clamp(.75rem, 5vw, 1.5rem) clamp(2rem, 5vw, 3rem);
-    }
-
-    .date-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: .4rem;
-      background: var(--accent);
-      color: #fff;
-      font-size: clamp(.72rem, 1.8vw, .8rem);
-      font-weight: 600;
-      padding: .25rem .75rem;
-      border-radius: 99px;
-      margin-bottom: clamp(.9rem, 3vw, 1.2rem);
-      letter-spacing: .02em;
     }
 
     .card {
@@ -112,10 +97,9 @@
       overflow: hidden;
     }
     .card-title {
-      font-size: clamp(.95rem, 2.5vw, 1.1rem);
+      font-size: clamp(.95rem, 2.5vw, 1.05rem);
       font-weight: 700;
       margin-bottom: clamp(.75rem, 2vw, 1rem);
-      color: var(--text);
       border-bottom: 2px solid var(--border);
       padding-bottom: .5rem;
     }
@@ -133,7 +117,6 @@
       border-left: 4px solid var(--accent);
       background: color-mix(in srgb, var(--accent) 8%, transparent);
       border-radius: 0 var(--radius) var(--radius) 0;
-      color: var(--text);
     }
     .digest-content h3.digest-h3 {
       font-size: clamp(.88rem, 2vw, .95rem);
@@ -173,7 +156,7 @@
       word-break: break-word;
     }
     .digest-content a:hover { text-decoration: underline; color: var(--accent-h); }
-    .digest-content em { color: var(--muted); font-style: italic; }
+    .digest-content em { color: var(--muted); }
     .digest-content strong { font-weight: 700; }
 
     /* ── TABULKY V DIGESTU ────────────────────────────── */
@@ -213,37 +196,6 @@
       background: color-mix(in srgb, var(--bg) 60%, var(--surface));
     }
 
-    /* ── ARCHÍV ───────────────────────────────────────── */
-    .archive-list {
-      list-style: none;
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(clamp(140px, 25vw, 220px), 1fr));
-      gap: clamp(.35rem, 1.5vw, .5rem);
-    }
-    .archive-list li a {
-      display: block;
-      padding: clamp(.4rem, 1.5vw, .5rem) clamp(.5rem, 2vw, .75rem);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: clamp(.8rem, 1.8vw, .88rem);
-      color: var(--text);
-      text-decoration: none;
-      transition: border-color .15s, background .15s;
-      min-width: 0;
-      overflow-wrap: break-word;
-      word-break: break-word;
-    }
-    .archive-list li a:hover {
-      border-color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 6%, transparent);
-      color: var(--accent);
-    }
-    .archive-list li a .arc-date {
-      font-size: clamp(.72rem, 1.6vw, .78rem);
-      color: var(--muted);
-      display: block;
-    }
-
     /* ── FOOTER ───────────────────────────────────────── */
     footer {
       text-align: center;
@@ -252,23 +204,13 @@
       margin-top: clamp(1.5rem, 4vw, 2rem);
       padding: 1rem clamp(.75rem, 5vw, 1.5rem) 2rem;
       border-top: 1px solid var(--border);
-      overflow-wrap: break-word;
-      word-break: break-word;
     }
+    footer a { color: var(--accent); }
 
     /* ── BREAKPOINTY ──────────────────────────────────── */
-    @media (max-width: 768px) {
-      .archive-list {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-      }
-    }
     @media (max-width: 480px) {
-      header .inner { gap: .4rem; }
-      .archive-list { grid-template-columns: 1fr 1fr; }
+      header .inner { align-items: flex-start; }
       .digest-content h2.digest-h2 { border-radius: 0 6px 6px 0; }
-    }
-    @media (max-width: 360px) {
-      .archive-list { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -276,20 +218,16 @@
 
 <header>
   <div class="inner">
-    <div class="icon">🤖</div>
     <div class="header-text">
-      <h1>AI digest</h1>
-      <div class="subtitle">Automatický přehled novinek ze světa umělé inteligence</div>
+      <a class="back-link" href="../index.html">← Zpět na dnešní AI digest</a>
+      <h1>🤖 AI digest — 25. května 2026</h1>
     </div>
   </div>
 </header>
 
 <div class="page-wrap">
-
-  <div class="date-badge">📅 25. května 2026</div>
-
   <div class="card">
-    <div class="card-title">Dnešní přehled</div>
+    <div class="card-title">Přehled za 25. května 2026</div>
     <div class="digest-content">
       <p>SUBJECT: AI oživuje hlasy mrtvých pilotů – etické dilema</p>
 
@@ -360,167 +298,11 @@
 
     </div>
   </div>
-
-  
-  <div class="card">
-    <div class="card-title">📂 Archív — posledních 21 dní</div>
-    <ul class="archive-list">
-      
-      <li>
-        <a href="archive/2026-05-25.html">
-          <span class="arc-date">2026-05-25</span>
-          AI Digest 25. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-22.html">
-          <span class="arc-date">2026-05-22</span>
-          AI Digest 22. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-21.html">
-          <span class="arc-date">2026-05-21</span>
-          AI Digest 21. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-20.html">
-          <span class="arc-date">2026-05-20</span>
-          AI Digest 20. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-19.html">
-          <span class="arc-date">2026-05-19</span>
-          AI Digest 19. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-18.html">
-          <span class="arc-date">2026-05-18</span>
-          AI Digest 18. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-15.html">
-          <span class="arc-date">2026-05-15</span>
-          AI Digest 15. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-14.html">
-          <span class="arc-date">2026-05-14</span>
-          AI Digest 14. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-13.html">
-          <span class="arc-date">2026-05-13</span>
-          AI Digest 13. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-12.html">
-          <span class="arc-date">2026-05-12</span>
-          AI Digest 12. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-11.html">
-          <span class="arc-date">2026-05-11</span>
-          AI Digest 11. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-07.html">
-          <span class="arc-date">2026-05-07</span>
-          AI Digest 7. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-06.html">
-          <span class="arc-date">2026-05-06</span>
-          AI Digest 6. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-05.html">
-          <span class="arc-date">2026-05-05</span>
-          AI Digest 5. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-05-04.html">
-          <span class="arc-date">2026-05-04</span>
-          AI Digest 4. května 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-30.html">
-          <span class="arc-date">2026-04-30</span>
-          AI Digest 30. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-29.html">
-          <span class="arc-date">2026-04-29</span>
-          AI Digest 29. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-28.html">
-          <span class="arc-date">2026-04-28</span>
-          AI Digest 28. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-24.html">
-          <span class="arc-date">2026-04-24</span>
-          AI Digest 24. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-04-23.html">
-          <span class="arc-date">2026-04-23</span>
-          AI Digest 23. dubna 2026
-        </a>
-      </li>
-      
-      <li>
-        <a href="archive/2026-03-25.html">
-          <span class="arc-date">2026-03-25</span>
-          AI Digest 25. března 2026
-        </a>
-      </li>
-      
-    </ul>
-  </div>
-  
-
 </div>
 
 <footer>
-  Generováno 2026-05-25 11:17 UTC &nbsp;·&nbsp; Zdroje: OpenAI Blog, Google DeepMind, Hugging Face, MIT Technology Review, VentureBeat AI, TechCrunch AI, Ars Technica AI, The Verge AI, Wired AI
+  Generováno 2026-05-25 11:17 UTC &nbsp;·&nbsp;
+  <a href="../index.html">Zpět na hlavní stránku</a>
 </footer>
 
 <script>
