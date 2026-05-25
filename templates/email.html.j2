@@ -127,6 +127,14 @@
           style="background:#f8fafc;border-top:1px solid #e2e8f0;
                  padding:12px 32px;text-align:center;
                  font-size:11px;color:#94a3b8;line-height:1.5;">
+        {% if web_url %}
+        <p style="margin:0 0 6px;">
+          <a href="{{ web_url }}" target="_blank"
+             style="color:#3b82f6;text-decoration:none;font-weight:600;font-size:12px;">
+            &#128196; Archiv všech souhrnů online
+          </a>
+        </p>
+        {% endif %}
         Automaticky generováno pomocí Gemini AI ze zdrojů NÚKIB, CERT.CZ,
         Krebs on Security, The Hacker News, BleepingComputer, ENISA a Schneier on Security.
       </td>
