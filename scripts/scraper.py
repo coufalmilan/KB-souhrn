@@ -107,12 +107,77 @@ def fetch_rss(name: str, url: str, since: datetime) -> list[dict]:
     return articles
 
 
+def fetch_nukib_portal_playwright(url: str, source_name: str, path_segment: str, since: datetime) -> list[dict]:
+    """
+    Záloha pomocí Playwright pro JS-only SPA (portal.nukib.gov.cz).
+    Spustí headless Chromium, počká na načtení stránky a extrahuje linky.
+    """
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        print(f"[WARN] Playwright není nainstalován, přeskakuji {source_name}.", file=sys.stderr)
+        return []
+
+    articles = []
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            page = browser.new_page(user_agent=HEADERS["User-Agent"])
+            page.goto(url, wait_until="networkidle", timeout=30000)
+
+            links = page.eval_on_selector_all(
+                f'a[href*="{path_segment}"]',
+                "els => els.map(el => ({ href: el.href, text: el.innerText.trim() }))"
+            )
+            print(f"[INFO] {source_name} (Playwright): {len(links)} odkazů", file=sys.stderr)
+            browser.close()
+
+        seen_urls = set()
+        for link in links:
+            href      = link.get("href", "").strip()
+            full_text = link.get("text", "").strip()
+            if not href or href in seen_urls:
+                continue
+            seen_urls.add(href)
+
+            date_match = re.search(r"(\d{1,2})\.,?\s*(\d{1,2})\.,?\s*(\d{4})", full_text)
+            pub = None
+            if date_match:
+                try:
+                    pub = datetime(int(date_match.group(3)), int(date_match.group(2)),
+                                   int(date_match.group(1)), tzinfo=timezone.utc)
+                except ValueError:
+                    pass
+            if pub and pub < since:
+                continue
+
+            title = re.sub(r"^\d{1,2}\.,?\s*\d{1,2}\.,?\s*\d{4}\s*", "", full_text).strip()
+            title = re.sub(r"^[·•\-–]\s*", "", title).strip()
+            title = re.sub(r"^TLP\s*:\s*\w+\s*[·•\-–]?\s*", "", title, flags=re.IGNORECASE).strip()
+            title = re.sub(r"^[·•\-–]\s*", "", title).strip()
+            if not title or len(title) < 5:
+                continue
+
+            articles.append({
+                "title":     title,
+                "url":       href,
+                "source":    source_name,
+                "published": pub.isoformat() if pub else "",
+                "summary":   "",
+            })
+    except Exception as exc:
+        print(f"[ERROR] {source_name} Playwright selhal: {exc}", file=sys.stderr)
+
+    return articles
+
+
 def fetch_nukib_portal(url: str, source_name: str, path_segment: str, since: datetime) -> list[dict]:
     """
     Scrapuje portal.nukib.gov.cz.
     Portál je React/Next.js SPA — zkouší:
     1) JSON API s Accept: application/json
     2) HTML scraping odkazů s path_segment v href
+    3) Playwright jako záloha pro JS-only stránky
     """
     articles = []
 
@@ -155,6 +220,12 @@ def fetch_nukib_portal(url: str, source_name: str, path_segment: str, since: dat
     try:
         resp = requests.get(url, headers=HEADERS, timeout=20)
         resp.raise_for_status()
+
+        # Detekce JS-only SPA — stránka neobsahuje obsah, jen "JavaScript required"
+        if "JavaScript" in resp.text and len(resp.text) < 8000:
+            print(f"[WARN] {source_name}: stránka vyžaduje JavaScript (SPA), přepínám na Playwright...", file=sys.stderr)
+            return fetch_nukib_portal_playwright(url, source_name, path_segment, since)
+
         soup = BeautifulSoup(resp.text, "lxml")
 
         # Hledáme všechny linky vedoucí do příslušné sekce

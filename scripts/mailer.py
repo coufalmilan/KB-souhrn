@@ -35,7 +35,7 @@ def format_date_cz(d) -> str:
     return f"{d.day}. {months[d.month]} {d.year}"
 
 
-def render_email_html(summary_html: str, today: date, subject_line: str = "") -> str:
+def render_email_html(summary_html: str, today: date, subject_line: str = "", web_url: str = "") -> str:
     env = Environment(
         loader=FileSystemLoader(str(TEMPLATE_DIR)),
         autoescape=select_autoescape(["html"]),
@@ -46,6 +46,7 @@ def render_email_html(summary_html: str, today: date, subject_line: str = "") ->
         date_cz      = format_date_cz(today),
         summary      = summary_html,
         subject_line = subject_line,
+        web_url      = web_url,
     )
 
 
@@ -71,6 +72,7 @@ def send(summary_html: str, today: date | None = None) -> None:
 
     recipients = [r.strip() for r in email_to_raw.split(",") if r.strip()]
     date_cz    = format_date_cz(today)
+    web_url    = os.environ.get("WEB_URL", "")
 
     # Extrahuj dynamický předmět z první řádky (formát "SUBJECT: ...")
     subject = f"Kyber digest — {date_cz}"  # fallback
@@ -85,7 +87,7 @@ def send(summary_html: str, today: date | None = None) -> None:
             break
 
     # Sestavení emailu
-    html_body = render_email_html(summary_html, today, subject_line=subject)
+    html_body = render_email_html(summary_html, today, subject_line=subject, web_url=web_url)
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
