@@ -40,6 +40,12 @@ jobs:
         run: pip install -r requirements.txt
 
       # -----------------------------------------------------------------------
+      # 3b. Instalace Playwright Chromium (pro scraping JS-only portálů)
+      # -----------------------------------------------------------------------
+      - name: Instalace Playwright Chromium
+        run: playwright install chromium --with-deps
+
+      # -----------------------------------------------------------------------
       # 4. Kontrola pracovního dne (víkendy + státní svátky → skip)
       # -----------------------------------------------------------------------
       - name: Kontrola pracovního dne
@@ -87,6 +93,7 @@ jobs:
           BREVO_SMTP_PASSWORD: ${{ secrets.BREVO_SMTP_PASSWORD }}
           EMAIL_FROM:          ${{ secrets.EMAIL_FROM }}
           EMAIL_TO:            ${{ secrets.EMAIL_TO }}
+          WEB_URL:             "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/"
         run: python scripts/mailer.py /tmp/summary.md
 
       # -----------------------------------------------------------------------
