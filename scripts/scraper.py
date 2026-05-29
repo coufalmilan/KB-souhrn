@@ -125,21 +125,33 @@ def fetch_nukib_portal_playwright(url: str, source_name: str, path_segment: str,
             page = browser.new_page(user_agent=HEADERS["User-Agent"])
             page.goto(url, wait_until="networkidle", timeout=30000)
 
+            # Datum je v jiném elementu než odkaz — bereme text celého kontejneru
             links = page.eval_on_selector_all(
                 f'a[href*="{path_segment}"]',
-                "els => els.map(el => ({ href: el.href, text: el.innerText.trim() }))"
+                """els => els.map(el => {
+                    const container = el.closest('li, article, [class*="item"], [class*="card"], [class*="row"], tr')
+                                   || el.parentElement?.parentElement
+                                   || el.parentElement;
+                    return {
+                        href: el.href,
+                        title: el.innerText.trim(),
+                        text: container ? container.innerText.trim() : el.innerText.trim()
+                    };
+                })"""
             )
             print(f"[INFO] {source_name} (Playwright): {len(links)} odkazů", file=sys.stderr)
             browser.close()
 
         seen_urls = set()
         for link in links:
-            href      = link.get("href", "").strip()
-            full_text = link.get("text", "").strip()
+            href       = link.get("href", "").strip()
+            title_text = link.get("title", "").strip()   # text samotného odkazu
+            full_text  = link.get("text", "").strip()    # text celého kontejneru (obsahuje datum)
             if not href or href in seen_urls:
                 continue
             seen_urls.add(href)
 
+            # Datum hledáme v celém kontejneru (formát "25. 5. 2026" nebo "25.5.2026")
             date_match = re.search(r"(\d{1,2})\.,?\s*(\d{1,2})\.,?\s*(\d{4})", full_text)
             pub = None
             if date_match:
@@ -148,11 +160,17 @@ def fetch_nukib_portal_playwright(url: str, source_name: str, path_segment: str,
                                    int(date_match.group(1)), tzinfo=timezone.utc)
                 except ValueError:
                     pass
-            if pub and pub < since:
+
+            # Pokud datum nebylo nalezeno v kontejneru, článek přeskočíme
+            # (brání zobrazování starých článků bez data)
+            if pub is None:
+                print(f"[WARN] {source_name}: nenalezeno datum pro '{title_text[:60]}', přeskakuji.", file=sys.stderr)
+                continue
+            if pub < since:
                 continue
 
-            title = re.sub(r"^\d{1,2}\.,?\s*\d{1,2}\.,?\s*\d{4}\s*", "", full_text).strip()
-            title = re.sub(r"^[·•\-–]\s*", "", title).strip()
+            # Název: preferuj text odkazu, jinak očisti kontejner
+            title = title_text or re.sub(r"^\d{1,2}\.,?\s*\d{1,2}\.,?\s*\d{4}\s*", "", full_text).strip()
             title = re.sub(r"^TLP\s*:\s*\w+\s*[·•\-–]?\s*", "", title, flags=re.IGNORECASE).strip()
             title = re.sub(r"^[·•\-–]\s*", "", title).strip()
             if not title or len(title) < 5:
