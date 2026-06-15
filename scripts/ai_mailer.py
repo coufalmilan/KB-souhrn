@@ -117,12 +117,16 @@ def send(summary_html: str, today: date | None = None) -> None:
     subject    = f"AI digest — {date_cz}"
 
     # Extrahuj dynamický předmět z první řádky (formát "SUBJECT: ...")
+    # Poznámka: text mohl být převeden z markdownu na HTML, takže hledáme
+    # jak "SUBJECT: text" tak "<p>SUBJECT: text</p>"
     lines_for_subject = summary_html.strip().splitlines()
-    for line in lines_for_subject[:3]:
-        if line.upper().startswith("SUBJECT:"):
-            extracted = line.split(":", 1)[1].strip()
+    for line in lines_for_subject[:5]:
+        line_text = re.sub(r"<[^>]+>", "", line).strip()  # odstraň HTML tagy
+        if line_text.upper().startswith("SUBJECT:"):
+            extracted = line_text.split(":", 1)[1].strip()
             if extracted:
                 subject = f"{extracted} [{date_cz}]"
+                # Odstraň celý původní řádek (i s HTML tagy) z obsahu emailu
                 summary_html = summary_html.replace(line, "", 1).lstrip("\n")
             break
 
