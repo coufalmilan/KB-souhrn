@@ -158,17 +158,52 @@
   <div class="card">
     <div class="card-title">Přehled za 15. června 2026</div>
     <div class="digest-content">
-      <h2 class="digest-h2">Žádné novinky</h2>
+      <p>SUBJECT: Kritická zranitelnost Copilotu a útoky na WordPress</p>
 
-<p>Za posledních 24 hodin nebyly nalezeny žádné nové články z monitorovaných zdrojů.</p>
+<p>Vážení IT profesionálové a bezpečnostní analytici,</p>
 
+<p>přinášíme vám denní přehled nejdůležitějších událostí z oblasti kybernetické bezpečnosti. Dnes se zaměříme na nově objevené zranitelnosti v klíčových platformách a na důležitost zabezpečeného onboardingu.</p>
+
+<h2 class="digest-h2">🇨🇿 NÚKIB</h2>
+<p><em>NÚKIB dnes žádné nové zprávy nezveřejnil.</em></p>
+
+<h2 class="digest-h2">🇨🇿 Česká republika a region</h2>
+<p><em>Dnes nebyly publikovány žádné zprávy specifické pro Českou republiku nebo region.</em></p>
+
+<h2 class="digest-h2">🌍 Svět</h2>
+<ul>
+  <li>  <strong>Nová zranitelnost "SearchLeak" v Microsoft 365 Copilot</strong> — Objevena kritická zranitelnost, která útočníkům umožňuje krást citlivá data z mailboxů, OneDrive a SharePointu uživatelů Microsoft 365 Copilot Enterprise. Útok zneužívá zranitelnosti v řetězci funkcí Copilotu a představuje vážné riziko pro firemní data. [Zdroj: BleepingComputer] URL: <a href="https://www.bleepingcomputer.com/news/security/new-attack-turned-microsoft-365-copilot-into-1-click-data-theft-tool/" target="_blank" rel="noopener">https://www.bleepingcomputer.com/news/security/new-attack-turned-microsoft-365-copilot-into-1-click-data-theft-tool/</a></li>
+  <li>  <strong>Únik dat z Infinite Campus postihl 137 000 účtů školního personálu</strong> — Extortionistická skupina ShinyHunters ukradla osobní údaje více než 137 000 účtů školního personálu v útoku na Salesforce, který cílil na široce používaný systém Infinite Campus pro správu studentů K-12. Incident podtrhuje rizika spojená s dodavatelským řetězcem a správou dat třetími stranami. [Zdroj: BleepingComputer] URL: <a href="https://www.bleepingcomputer.com/news/security/infinite-campus-data-breach-affects-137-000-school-staff-accounts/" target="_blank" rel="noopener">https://www.bleepingcomputer.com/news/security/infinite-campus-data-breach-affects-137-000-school-staff-accounts/</a></li>
+  <li>  <strong>152 rozšíření Chrome s tapetami šířilo adware a generovalo falešný provoz</strong> — Bezpečnostní výzkumníci odhalili síť 152 rozšíření Google Chrome, která se tvářila jako doplňky pro živé tapety na nové záložky, ale ve skutečnosti distribuovala potenciálně nežádoucí programy (PUP) a generovala falešný provoz. Celkem měly přes 105 000 instalací, což ukazuje na riziko neprověřených rozšíření. [Zdroj: The Hacker News] URL: <a href="https://thehackernews.com/2026/06/152-chrome-wallpaper-extensions-with.html" target="_blank" rel="noopener">https://thehackernews.com/2026/06/152-chrome-wallpaper-extensions-with.html</a></li>
+  <li>  <strong>Populární WordPress pluginy zneužity pro skryté backdoory</strong> — Útočník manipuloval s důvěryhodnými JavaScriptovými soubory používanými weby s WordPress pluginy jako PushEngage, OptinMonster a TrustPulse, čímž vytvořil cestu k průniku na weby. Administrátoři by měli ověřovat integritu externích skriptů a být obezřetní vůči kompromitaci dodavatelského řetězce. [Zdroj: The Hacker News] URL: <a href="https://thehackernews.com/2026/06/popular-wordpress-plugin-scripts.html" target="_blank" rel="noopener">https://thehackernews.com/2026/06/popular-wordpress-plugin-scripts.html</a></li>
+</ul>
+
+<h2 class="digest-h2">⚠️ Příběh z praxe</h2>
+<p><strong>Kompromitace WordPress webu přes externí skripty pluginů</strong></p>
+<ul>
+  <li>  <strong>Co se stalo:</strong> Útočník kompromitoval externí JavaScriptové soubory, které byly načítány populárními WordPress pluginy (např. PushEngage). Tyto soubory byly následně upraveny tak, aby obsahovaly skrytý škodlivý kód.</li>
+  <li>  <strong>Co udělali útočníci:</strong> Využili důvěry v legitimní pluginy a jejich externí zdroje k injektování backdoorů přímo do webových stránek, které tyto pluginy používaly. To jim umožnilo získat kontrolu nad napadenými weby.</li>
+  <li>  <strong>Co oběť zanedbala:</strong> Spoléhala se výhradně na popularitu a důvěryhodnost pluginů, aniž by aktivně ověřovala integritu externích skriptů, které pluginy načítaly. Nebyla implementována kontrola Subresource Integrity (SRI) nebo jiné mechanismy pro ověření, že načítané skripty nebyly změněny.</li>
+  <li>  <strong>Co měla udělat jinak:</strong> Pravidelně auditovat všechny externí skripty načítané webem, implementovat Subresource Integrity (SRI) pro kritické externí zdroje a používat Web Application Firewall (WAF) pro detekci a blokování podezřelého chování.</li>
+</ul>
+
+<h2 class="digest-h2">🛡️ Praktický tip</h2>
+<ul>
+  <li>  <strong>Co udělat:</strong> Zabezpečte proces předávání počátečních hesel novým zaměstnancům.</li>
+  <li>  <strong>Proč:</strong> Předávání dočasných hesel e-mailem, SMS nebo dokonce ústně při prvním setkání představuje významné riziko kompromitace účtu ještě předtím, než zaměstnanec začne pracovat.</li>
+  <li>  <strong>Jak:</strong> Použijte zabezpečený, jednorázový mechanismus pro generování a doručení počátečního hesla, například dedikovaný portál pro aktivaci účtu s ověřením přes osobní e-mail nebo telefon, nebo zabezpečený nástroj pro správu hesel. Zajistěte, aby uživatelé byli nuceni heslo okamžitě změnit po prvním přihlášení.</li>
+</ul>
+
+<h2 class="digest-h2">📋 Shrnutí a výzva k akci</h2>
+<p>Dnešní přehled upozorňuje na kritické zranitelnosti v populárních platformách, jako je Microsoft 365 Copilot a WordPress, a na přetrvávající hrozbu úniků dat z velkých systémů. Nezapomínejte ani na základní bezpečnostní postupy, jako je zabezpečené předávání hesel.</p>
+<p>👉 <strong>Doporučená akce:</strong> Zkontrolujte procesy předávání počátečních hesel novým zaměstnancům a ujistěte se, že jsou maximálně zabezpečené proti odposlechu nebo zneužití.</p>
 
     </div>
   </div>
 </div>
 
 <footer>
-  Generováno 2026-06-15 06:49 UTC &nbsp;·&nbsp;
+  Generováno 2026-06-15 13:16 UTC &nbsp;·&nbsp;
   <a href="../index.html" style="color: var(--accent)">Zpět na hlavní stránku</a>
 </footer>
 
