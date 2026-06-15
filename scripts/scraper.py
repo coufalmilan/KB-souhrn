@@ -125,21 +125,55 @@ def fetch_nukib_portal_playwright(url: str, source_name: str, path_segment: str,
             page = browser.new_page(user_agent=HEADERS["User-Agent"])
             page.goto(url, wait_until="networkidle", timeout=30000)
 
-            # Datum je v jiném elementu než odkaz — bereme text celého kontejneru
+            # Datum je v jiném elementu než odkaz.
+            # Strategie: zkusíme closest(), pak procházíme rodiče až 8 úrovní nahoru,
+            # hledáme první kontejner jehož text obsahuje datum (DD. M. YYYY).
+            # Pokud ani to nepomůže, vrátíme text rodiče 3. úrovně jako zálohu.
             links = page.eval_on_selector_all(
                 f'a[href*="{path_segment}"]',
-                """els => els.map(el => {
-                    const container = el.closest('li, article, [class*="item"], [class*="card"], [class*="row"], tr')
-                                   || el.parentElement?.parentElement
-                                   || el.parentElement;
-                    return {
-                        href: el.href,
-                        title: el.innerText.trim(),
-                        text: container ? container.innerText.trim() : el.innerText.trim()
-                    };
-                })"""
+                """els => {
+                    const dateRe = /\\d{1,2}[.\\s]\\s*\\d{1,2}[.\\s]\\s*\\d{4}/;
+                    return els.map(el => {
+                        // 1) Zkusíme closest() se širším výběrem selektorů
+                        const container = el.closest(
+                            'li, article, tr, ' +
+                            '[class*="item"], [class*="card"], [class*="row"], ' +
+                            '[class*="article"], [class*="entry"], [class*="post"], ' +
+                            '[class*="list"], [class*="result"]'
+                        );
+                        if (container) {
+                            return { href: el.href, title: el.innerText.trim(),
+                                     text: container.innerText.trim() };
+                        }
+
+                        // 2) Procházíme rodiče nahoru, hledáme datum
+                        let node = el.parentElement;
+                        let fallback3 = null;
+                        for (let i = 0; i < 8; i++) {
+                            if (!node) break;
+                            if (i === 2) fallback3 = node;
+                            const txt = node.innerText || '';
+                            if (dateRe.test(txt)) {
+                                return { href: el.href, title: el.innerText.trim(),
+                                         text: txt.trim() };
+                            }
+                            node = node.parentElement;
+                        }
+
+                        // 3) Záloha: rodič 3. úrovně nebo přímý rodič
+                        const fb = fallback3 || el.parentElement;
+                        return { href: el.href, title: el.innerText.trim(),
+                                 text: fb ? fb.innerText.trim() : el.innerText.trim() };
+                    });
+                }"""
             )
             print(f"[INFO] {source_name} (Playwright): {len(links)} odkazů", file=sys.stderr)
+
+            # Debug: vypiš první 2 záznamy pro diagnostiku
+            for dbg in links[:2]:
+                snip = dbg.get("text", "")[:150].replace("\n", " | ")
+                print(f"[DEBUG] {source_name}: text kontejneru: {snip!r}", file=sys.stderr)
+
             browser.close()
 
         seen_urls = set()
@@ -164,7 +198,8 @@ def fetch_nukib_portal_playwright(url: str, source_name: str, path_segment: str,
             # Pokud datum nebylo nalezeno v kontejneru, článek přeskočíme
             # (brání zobrazování starých článků bez data)
             if pub is None:
-                print(f"[WARN] {source_name}: nenalezeno datum pro '{title_text[:60]}', přeskakuji.", file=sys.stderr)
+                print(f"[WARN] {source_name}: nenalezeno datum pro '{title_text[:60]}'", file=sys.stderr)
+                print(f"[WARN]   container text: {full_text[:120]!r}", file=sys.stderr)
                 continue
             if pub < since:
                 continue
