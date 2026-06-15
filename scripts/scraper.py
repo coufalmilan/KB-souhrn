@@ -21,13 +21,16 @@ RSS_FEEDS = [
     ("The Hacker News",      "https://feeds.feedburner.com/TheHackersNews"),
     ("BleepingComputer",     "https://www.bleepingcomputer.com/feed/"),
     ("Schneier on Security", "https://schneier.com/feed/"),
-    # NÚKIB klasické stránky - Joomla CMS, RSS přes ?format=feed&type=rss
-    ("NUKIB Aktuality",      "https://nukib.gov.cz/cs/infoservis/aktuality/?format=feed&type=rss"),
-    ("NUKIB Hrozby",         "https://nukib.gov.cz/cs/infoservis/hrozby/?format=feed&type=rss"),
 ]
 
 # ENISA - samostatně kvůli bozo feed fallbacku
 ENISA_RSS = "https://www.enisa.europa.eu/media/news-items/news-wires/RSS"
+
+# NÚKIB klasická stránka (nukib.gov.cz) — RSS nefunguje, scrapeujeme HTML přímo
+NUKIB_CLASSIC_PAGES = [
+    ("NUKIB Aktuality", "https://nukib.gov.cz/cs/infoservis/aktuality/"),
+    ("NUKIB Hrozby",    "https://nukib.gov.cz/cs/infoservis/hrozby/"),
+]
 
 # NÚKIB portál (React SPA / Next.js) - zkouší API i HTML scraping
 NUKIB_PORTAL_AKTUALNE_URL  = "https://portal.nukib.gov.cz/informacni-servis/aktualne"
@@ -104,6 +107,64 @@ def fetch_rss(name: str, url: str, since: datetime) -> list[dict]:
                 })
     except Exception as exc:
         print(f"[ERROR] {name}: {exc}", file=sys.stderr)
+    return articles
+
+
+def fetch_nukib_classic(name: str, url: str, since: datetime) -> list[dict]:
+    """
+    Scrapuje klasické stránky nukib.gov.cz (Aktuality, Hrozby).
+    RSS feed přestal fungovat (vrací HTML místo XML) — parsujeme HTML přímo.
+    Struktura stránky: <h3>DD.MM.YYYY <a href="/cs/...">Titulek</a></h3>
+    """
+    articles = []
+    try:
+        resp = requests.get(url, headers=HEADERS, timeout=20)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "lxml")
+
+        # Hledáme <h3> elementy — každý obsahuje datum a odkaz
+        for h3 in soup.find_all("h3"):
+            a_tag = h3.find("a", href=True)
+            if not a_tag:
+                continue
+
+            full_text = h3.get_text(separator=" ", strip=True)
+
+            # Datum ve formátu DD.MM.YYYY (přesný tvar na nukib.gov.cz)
+            date_match = re.search(r"(\d{2})\.(\d{2})\.(\d{4})", full_text)
+            pub = None
+            if date_match:
+                try:
+                    pub = datetime(int(date_match.group(3)), int(date_match.group(2)),
+                                   int(date_match.group(1)), tzinfo=timezone.utc)
+                except ValueError:
+                    pass
+
+            if pub is None:
+                continue
+            if pub < since:
+                continue
+
+            title = a_tag.get_text(strip=True)
+            if not title or len(title) < 5:
+                continue
+
+            href = a_tag["href"]
+            if not href.startswith("http"):
+                href = "https://nukib.gov.cz" + href
+
+            articles.append({
+                "title":     title,
+                "url":       href,
+                "source":    name,
+                "published": pub.isoformat(),
+                "summary":   "",
+            })
+
+    except Exception as exc:
+        print(f"[ERROR] {name}: {exc}", file=sys.stderr)
+
+    print(f"[INFO] {name}: {len(articles)} článků", file=sys.stderr)
     return articles
 
 
@@ -354,7 +415,7 @@ def scrape_all() -> list[dict]:
 
     print(f"[INFO] Stahuji novinky od {since.strftime('%Y-%m-%d %H:%M UTC')} …", file=sys.stderr)
 
-    # RSS feedy (včetně NÚKIB Aktuality a Hrozby přes Joomla RSS)
+    # RSS feedy
     for name, url in RSS_FEEDS:
         items = fetch_rss(name, url, since)
         print(f"[INFO] {name}: {len(items)} článků", file=sys.stderr)
@@ -365,6 +426,12 @@ def scrape_all() -> list[dict]:
     enisa = fetch_rss("ENISA", ENISA_RSS, since)
     print(f"[INFO] ENISA: {len(enisa)} článků", file=sys.stderr)
     all_articles.extend(enisa)
+
+    # NÚKIB klasické stránky (HTML scraping — RSS přestalo fungovat)
+    for name, url in NUKIB_CLASSIC_PAGES:
+        time.sleep(0.3)
+        items = fetch_nukib_classic(name, url, since)
+        all_articles.extend(items)
 
     # NÚKIB portál
     time.sleep(0.5)
