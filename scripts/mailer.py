@@ -74,24 +74,22 @@ def send(summary_html: str, today: date | None = None) -> None:
     date_cz    = format_date_cz(today)
     web_url    = os.environ.get("WEB_URL", "")
 
-    # Extrahuj dynamický předmět z první řádky (formát "SUBJECT: ...")
-    # Poznámka: text mohl být převeden z markdownu na HTML, takže hledáme
-    # jak "SUBJECT: text" tak "<p>SUBJECT: text</p>"
+    # Předmět emailu je vždy pevný — Outlookická pravidla na něj spoléhají.
+    # Řádek "SUBJECT: ..." z AI výstupu odstraníme z těla, ale předmět neměníme.
     import re as _re
-    subject = f"Kyber digest — {date_cz}"  # fallback
+    subject = f"Kyber digest — {date_cz}"
+    subject_line = ""  # podtitulek zobrazený uvnitř emailu (pod datem)
     lines_for_subject = summary_html.strip().splitlines()
     for line in lines_for_subject[:5]:
-        line_text = _re.sub(r"<[^>]+>", "", line).strip()  # odstraň HTML tagy
+        line_text = _re.sub(r"<[^>]+>", "", line).strip()
         if line_text.upper().startswith("SUBJECT:"):
-            extracted = line_text.split(":", 1)[1].strip()
-            if extracted:
-                subject = f"{extracted} [{date_cz}]"
-                # Odstraň celý původní řádek (i s HTML tagy) z obsahu emailu
-                summary_html = summary_html.replace(line, "", 1).lstrip("\n")
+            subject_line = line_text.split(":", 1)[1].strip()
+            # Odstraň řádek z těla emailu (nechceme ho zobrazovat)
+            summary_html = summary_html.replace(line, "", 1).lstrip("\n")
             break
 
     # Sestavení emailu
-    html_body = render_email_html(summary_html, today, subject_line=subject, web_url=web_url)
+    html_body = render_email_html(summary_html, today, subject_line=subject_line, web_url=web_url)
 
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
