@@ -24,6 +24,26 @@ RSS_FEEDS = [
     ("Ars Technica AI",      "https://arstechnica.com/tag/ai/feed/"),
     ("The Verge AI",         "https://www.theverge.com/rss/ai-artificial-intelligence/rss/index.xml"),
     ("Wired AI",             "https://www.wired.com/feed/tag/artificial-intelligence/rss"),
+    # EU AI Act & regulace
+    ("EURACTIV Digital",     "https://www.euractiv.com/sections/digital/feed/"),
+    ("AlgorithmWatch",       "https://algorithmwatch.org/en/feed/"),
+    ("Future of Life Inst.", "https://futureoflife.org/feed/"),
+]
+
+# Google News RSS vyhledávání — agreguje zprávy o AI Act z mnoha zdrojů
+AI_ACT_NEWS_FEEDS = [
+    ("AI Act News (EN)",
+     "https://news.google.com/rss/search?q=%22AI+Act%22+OR+%22Artificial+Intelligence+Act%22+EU&hl=en&gl=US&ceid=US:en"),
+    ("AI Act News (CS)",
+     "https://news.google.com/rss/search?q=%22AI+Act%22+OR+%22z%C3%A1kon+o+um%C4%9Bl%C3%A9+inteligenci%22&hl=cs&gl=CZ&ceid=CZ:cs"),
+]
+
+# Klíčová slova pro identifikaci AI Act článků z obecných feedů
+AI_ACT_KEYWORDS = [
+    "ai act", "artificial intelligence act", "eu ai", "ai regulation",
+    "zákon o umělé inteligenci", "nařízení o ai", "eu ai regulation",
+    "ai liability", "ai office", "eu ai office", "high-risk ai",
+    "ai governance", "algorithmic accountability",
 ]
 
 HEADERS = {
@@ -108,14 +128,35 @@ def deduplicate(articles: list[dict]) -> list[dict]:
     return result
 
 
+def is_ai_act_article(article: dict) -> bool:
+    """Vrátí True pokud článek pravděpodobně pojednává o EU AI Act."""
+    text = (article.get("title", "") + " " + article.get("summary", "")).lower()
+    return any(kw in text for kw in AI_ACT_KEYWORDS)
+
+
 def scrape_all() -> list[dict]:
     since = cutoff_time()
     all_articles = []
 
     print(f"[INFO] Stahuji AI novinky od {since.strftime('%Y-%m-%d %H:%M UTC')} …", file=sys.stderr)
 
+    # Hlavní RSS feedy (obecné AI zprávy)
     for name, url in RSS_FEEDS:
         items = fetch_rss(name, url, since)
+        # Článkům o AI Act přidáme označení zdroje pro lepší sumarizaci
+        for item in items:
+            if is_ai_act_article(item):
+                item["source"] = f"{item['source']} [AI Act]"
+        print(f"[INFO] {name}: {len(items)} článků", file=sys.stderr)
+        all_articles.extend(items)
+        time.sleep(0.5)
+
+    # Dedikované AI Act / regulační feedy (Google News search + specializovaná média)
+    print(f"[INFO] Stahuji AI Act zdroje …", file=sys.stderr)
+    for name, url in AI_ACT_NEWS_FEEDS:
+        items = fetch_rss(name, url, since)
+        for item in items:
+            item["source"] = f"{item['source']} [AI Act]"
         print(f"[INFO] {name}: {len(items)} článků", file=sys.stderr)
         all_articles.extend(items)
         time.sleep(0.5)
@@ -123,7 +164,8 @@ def scrape_all() -> list[dict]:
     all_articles = deduplicate(all_articles)
     all_articles.sort(key=lambda x: x.get("published", ""), reverse=True)
 
-    print(f"[INFO] Celkem AI článků po deduplikaci: {len(all_articles)}", file=sys.stderr)
+    ai_act_count = sum(1 for a in all_articles if "[AI Act]" in a.get("source", ""))
+    print(f"[INFO] Celkem AI článků po deduplikaci: {len(all_articles)} (z toho AI Act: {ai_act_count})", file=sys.stderr)
     return all_articles
 
 
