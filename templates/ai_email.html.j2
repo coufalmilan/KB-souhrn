@@ -71,10 +71,16 @@
       overflow-wrap: break-word;
     }
 
-    .digest-content a { color: #7c3aed; text-decoration: none; }
+    .digest-content a {
+      color: #7c3aed; text-decoration: none;
+      word-wrap: break-word; overflow-wrap: break-word; word-break: break-all;
+    }
     .digest-content a:hover { text-decoration: underline; }
     .digest-content em { color: #6b7280; font-style: italic; }
-    .digest-content strong { font-weight: 700; color: #111827; }
+    .digest-content strong {
+      font-weight: 700; color: #111827;
+      word-wrap: break-word; overflow-wrap: break-word;
+    }
 
     @media only screen and (max-width: 480px) {
       .email-header-td { padding: 14px 18px 12px !important; }
@@ -86,8 +92,9 @@
 <body>
 
   <!-- Jediná tabulka, width=100%, žádný centrující wrapper -->
+  <!-- table-layout:fixed zajistí zalamování textu v Outlooku (MSO engine) -->
   <table width="100%" cellpadding="0" cellspacing="0" border="0"
-         style="width:100%;background:#ffffff;">
+         style="width:100%;table-layout:fixed;background:#ffffff;">
 
     <!-- Hlavička -->
     <tr>
@@ -112,7 +119,8 @@
     <!-- Obsah -->
     <tr>
       <td class="email-body-td"
-          style="padding:24px 32px 20px;background:#ffffff;">
+          style="padding:24px 32px 20px;background:#ffffff;
+                 word-wrap:break-word;overflow-wrap:break-word;word-break:break-word;">
         <div class="digest-content">
           {{ summary | safe }}
         </div>
