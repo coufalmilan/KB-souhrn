@@ -16,6 +16,7 @@ from datetime import date
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
+from urllib.parse import urlparse
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 BREVO_SMTP_HOST = "smtp-relay.brevo.com"
@@ -47,8 +48,23 @@ def markdown_to_html(md: str) -> str:
             in_ul = False
 
     def inline(text: str) -> str:
-        text = re.sub(r'(https?://[^\s<>"]+)',
-                      r'<a href="\1" target="_blank" rel="noopener">\1</a>', text)
+        def url_to_link(m: re.Match) -> str:
+            url = m.group(1)
+            # Outlook MSO engine ignoruje CSS word-break z <style> bloku —
+            # používáme inline styl a zkracujeme zobrazovaný text dlouhých URL
+            # (Google News, apod. mají URL 200+ znaků, které nešly zalamovat).
+            if len(url) > 60:
+                try:
+                    display = urlparse(url).netloc or url[:50]
+                except Exception:
+                    display = url[:50] + "\u2026"
+            else:
+                display = url
+            return (
+                f'<a href="{url}" target="_blank" rel="noopener" '
+                f'style="word-break:break-all;overflow-wrap:break-word;">{display}</a>'
+            )
+        text = re.sub(r'(https?://[^\s<>"]+)', url_to_link, text)
         text = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", text)
         text = re.sub(r"\*(.+?)\*", r"<em>\1</em>", text)
         return text
